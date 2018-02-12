@@ -187,7 +187,7 @@ class Dev4Tango(PyTango.Device_4Impl,log.Logger):
         :use_tango: Use internal tango streams (-v) or not.
         """ 
         name = name or self.get_name()
-        print('In %s.init_my_Logger ...'%name)
+        print(('In %s.init_my_Logger ...'%name))
         try:
             #Check if this class inherits from Logger
             if isinstance(self,log.Logger): 
@@ -202,10 +202,10 @@ class Dev4Tango(PyTango.Device_4Impl,log.Logger):
                 except:
                   raise Exception('LoggerNotInBaseClasses')
         except Exception as e:
-            print('*'*80)
+            print(('*'*80))
             print('Exception at init_my_Logger!!!!')
-            print(str(e))        
-            print('*'*80)
+            print((str(e)))        
+            print(('*'*80))
             #so, this class is not a new style class and doesn't have __bases__
             self.error = lambda s: sys.stderr.write('ERROR:\t%s\n'%s)
             self.warning= lambda s: sys.stdout.write('WARNING:\t%s\n'%s)
@@ -248,7 +248,7 @@ class Dev4Tango(PyTango.Device_4Impl,log.Logger):
                 self.info('In Dev4Tango.get_device_properties(%s): initializing default property values: %s' % (self.get_name(),missing_properties))
                 get_database().put_device_property(self.get_name(),missing_properties)
             except Exception as e:
-                print('Exception in Dev4Tango.get_device_properties():\n'+str(e))
+                print(('Exception in Dev4Tango.get_device_properties():\n'+str(e)))
                 
     def update_properties(self,property_list = []):
         property_list = property_list or list(self.get_device_class().device_property_list.keys())
@@ -257,7 +257,7 @@ class Dev4Tango(PyTango.Device_4Impl,log.Logger):
         if not hasattr(self,'db') or not self.db: self.db = PyTango.Database()
         props = dict([(key,getattr(self,key)) for key in property_list if hasattr(self,key)])
         for key,value in list(props.items()):
-            print('Updating Property %s = %s' % (key,value))
+            print(('Updating Property %s = %s' % (key,value)))
             if fun.isSequence(value) and not isinstance(value,list):
                 value = list(value)
             self.db.put_device_property(self.get_name(),{key:isinstance(value,list) and value or [value]})                
@@ -428,24 +428,24 @@ class Dev4Tango(PyTango.Device_4Impl,log.Logger):
                         try:
                             attr.read(cache=False)
                         except Exception as e:
-                            print('#'*80)
+                            print(('#'*80))
                             event_type = fakeEventType.lookup['Error']
                             self.events_error = except2str(e) #traceback.format_exc()
-                            print(self.events_error)
+                            print((self.events_error))
                             
                         self.info('Sending fake event: %s/%s = %s(%s)' % (device,attr.name,event_type,attr.value))
                         self.event_received(device+'/'+attr.name,event_type,attr)
                     except: 
                         self.events_error = traceback.format_exc()
-                        print('Exception in %s.update_attributes(%s): \n%s' % (self.get_name(),attr.name,self.events_error))
+                        print(('Exception in %s.update_attributes(%s): \n%s' % (self.get_name(),attr.name,self.events_error)))
                     self.Event.wait(waittime)
                     #End of for
                 self.Event.wait(waittime)
             except:
                 self.events_error = traceback.format_exc()
                 self.Event.wait(3.)
-                print(self.events_error)
-                print('Exception in %s.update_attributes()' % (self.get_name()))
+                print((self.events_error))
+                print(('Exception in %s.update_attributes()' % (self.get_name())))
             #End of while
         self.info('%s.update_attributes finished')
         if not self.events_error.replace('None','').strip():
@@ -458,7 +458,7 @@ class Dev4Tango(PyTango.Device_4Impl,log.Logger):
         This method must be overriden in child classes.
         """
         #self.info,debug,error,warning should not be used here to avoid conflicts with taurus.core logging
-        def log(prio,s): print('%s %s %s: %s' % (prio.upper(),time.strftime('%Y-%m-%d %H:%M:%S',time.localtime()),self.get_name(),s))
+        def log(prio,s): print(('%s %s %s: %s' % (prio.upper(),time.strftime('%Y-%m-%d %H:%M:%S',time.localtime()),self.get_name(),s)))
         self.last_event_received = time.time()
         log('info','In Dev4Tango.event_received(%s(%s),%s,%s) at %s'%(type(source).__name__,source,fakeEventType[type_],type(attr_value).__name__,self.last_event_received))
         return

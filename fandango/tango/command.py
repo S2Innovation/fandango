@@ -109,7 +109,7 @@ class TangoCommand(object):
         pass
         
     def trace(self,msg,severity='DEBUG'):
-        print('%s %s fandango.TangoCommand: %s'%(severity,time.ctime(),msg))
+        print(('%s %s fandango.TangoCommand: %s'%(severity,time.ctime(),msg)))
     
     def _parse_feedback(self,feedback):
         if isCallable(feedback):

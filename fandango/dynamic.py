@@ -511,7 +511,7 @@ class DynamicDS(PyTango.Device_4Impl,Logger):
                     try: admin.rem_obj_polling([my_name,'attribute',att])
                     except: print((traceback.format_exc()))
         #Second: add new attributes to the list of attributes to configure; attributes where value is None will not be polled
-        for n,v in new_attr.items():
+        for n,v in list(new_attr.items()):
             if n.lower() not in npattrs and v:
                 (npattrs.append(n.lower()),npattrs.append(v))
                 self.info('Attribute %s added to %s.polled_attr Property' % (n,my_name))

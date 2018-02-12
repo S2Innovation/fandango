@@ -61,7 +61,7 @@ def parse_labels(text):
             labels = eval(text)
             return labels
         except Exception as e:
-            print('ERROR! Unable to parse labels property: %s'%str(e))
+            print(('ERROR! Unable to parse labels property: %s'%str(e)))
             return []
     else:
         exprs = text.split(',')
@@ -81,7 +81,7 @@ def get_model_name(model):
         try:
             model = model.getModelName()
         except:
-            print(traceback.format_exc())
+            print((traceback.format_exc()))
     return str(model).lower()
         
 def parse_tango_model(name,use_tau=False,use_host=False):
@@ -326,7 +326,7 @@ def get_all_models(expressions,limit=1000):
         if isinstance(expressions,types):
             expressions = list(str(e) for e in expressions)
     
-    print('In get_all_models(%s:"%s") ...' % (type(expressions),expressions))
+    print(('In get_all_models(%s:"%s") ...' % (type(expressions),expressions)))
     db = get_database()
     if 'SimulationDatabase' in str(type(db)): #used by TauWidgets displayable in QtDesigner
       return expressions

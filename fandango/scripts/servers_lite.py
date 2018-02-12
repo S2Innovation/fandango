@@ -56,7 +56,7 @@ def put_device_property(device,property,value=None):
     """
     if not isDictionary(property):
         property = {property:value}
-    print device,property
+    print((device,property))
     return get_database().put_device_property(device,property)
     
 def get_device_attributes(device):
@@ -64,31 +64,31 @@ def get_device_attributes(device):
 
 def get_device_attribute_properties(device,attribute):
     props = get_database().get_device_attribute_property(device,{attribute:'*'})[attribute]
-    return dict((k,list(p)) for k,p in props.items())
+    return dict((k,list(p)) for k,p in list(props.items()))
 
 def clean_device_attribute_properties(device):
     attrs = get_device_attributes(device)
-    props = dict((a,get_device_attribute_properties(device,a).keys()) for a in attrs)
+    props = dict((a,list(get_device_attribute_properties(device,a).keys())) for a in attrs)
     #In [153]: db.delete_device_attribute_property('test/test/test-04',{'t2':['unit']})
-    for p,v in props.items():
+    for p,v in list(props.items()):
         if not v: continue
         get_database().delete_device_attribute_property(device,{p:v})
         
 def clean_device_properties(device):
     props = get_device_properties(device)
-    get_database().delete_device_property(device,props.keys())
+    get_database().delete_device_property(device,list(props.keys()))
     
 def remove_device_server(server,clean_db=True):
     s = Astor(server)
     assert len(s),'ServerNotFound!'
-    assert len(s)==1,'RegexpNotAllowed:%s'%s.keys()
-    if clean_db: assert None not in s.states().values(),'DeviceNotRunning'
+    assert len(s)==1,'RegexpNotAllowed:%s'%list(s.keys())
+    if clean_db: assert None not in list(s.states().values()),'DeviceNotRunning'
     devs = s.get_all_devices()
     for device in devs:
         try:
             if clean_db:clean_device_attribute_properties(device)
         except:
-            print 'Unable to clean attributes, device not running'
+            print('Unable to clean attributes, device not running')
             return
     s.stop_servers()
     for device in devs:
@@ -132,13 +132,13 @@ class ProxiesDict(CaselessDefaultDict,Object): #class ProxiesDict(dict,log.Logge
         If a key doesn't exists this method is called and returns a proxy for a given device.
         If the proxy caused an exception (usually because device doesn't exists) a None value is returned
         '''        
-        if dev_name not in self.keys():
+        if dev_name not in list(self.keys()):
             try:
                 devklass,attrklass = (taurus.Device,taurus.Attribute)
                 dev = (attrklass if str(dev_name).count('/')==(4 if ':' in dev_name else 3) else devklass)(dev_name)
-            except Exception,e:
-                print('ProxiesDict: %s doesnt exist!'%dev_name)
-                print traceback.format_exc()
+            except Exception as e:
+                print(('ProxiesDict: %s doesnt exist!'%dev_name))
+                print((traceback.format_exc()))
                 dev = None
         return dev
             
@@ -152,7 +152,7 @@ class ProxiesDict(CaselessDefaultDict,Object): #class ProxiesDict(dict,log.Logge
         return self['dserver/'+admin]
     def pop(self,dev_name):
         '''Removes a device from the dict'''
-        if dev_name not in self.keys(): return
+        if dev_name not in list(self.keys()): return
         return CaselessDefaultDict.pop(self,dev_name)
         
 ####################################################################################################################
@@ -160,7 +160,7 @@ class ProxiesDict(CaselessDefaultDict,Object): #class ProxiesDict(dict,log.Logge
 class TServer(Object):
     '''Class used by ServerDict to manage TangoDeviceServer admin devices.'''
     def __init__(self,name='', host='', parent=None):
-        if not name or '/' not in name: raise Exception,'TServer_WrongServerName_%s' % name
+        if not name or '/' not in name: raise Exception('TServer_WrongServerName_%s' % name)
         self.name=self.get_simple_name(name)        
         self.update_level(host,0)
         self.controlled = False
@@ -185,7 +185,7 @@ class TServer(Object):
         if not dname: self.set_state(None)
         try: proxy = self.get_proxy(name)
         except: 
-            print('%s.ping() ... %s not in database!!!' % (self.name,name))
+            print(('%s.ping() ... %s not in database!!!' % (self.name,name)))
             return None
         wait(.01) #this wait allows parallel threads
         try: proxy.ping()
@@ -250,7 +250,7 @@ class TServer(Object):
     def get_device_list(self): 
         '''Returns a list of devices declared for this server.'''
         result=[]
-        [result.extend(v) for c,v in self.classes.items() if c.lower()!='dserver']
+        [result.extend(v) for c,v in list(self.classes.items()) if c.lower()!='dserver']
         return result
     
     def get_proxy(self,device=''): 
@@ -267,7 +267,7 @@ class TServer(Object):
             for device in self.classes[klass]:
                 try:
                     result[device] = self.proxies[device].State()
-                except Exception,e:
+                except Exception as e:
                     #self.log.warning('Unable to read %s state: %s' % (device,str(e)[:100]+'...'))
                     result[device] = None #PyTango.DevState.UNKNOWN
         return result
@@ -282,8 +282,8 @@ class TServer(Object):
             for reply in answers:
                 result[reply.dev_name()] = reply.get_data()
             return result
-        except Exception,e:
-            print 'Unable to read all Status from %s: %s' % (self.name,str(e)[:100]+'...')
+        except Exception as e:
+            print(('Unable to read all Status from %s: %s' % (self.name,str(e)[:100]+'...')))
             return result
     
 ####################################################################################################################
@@ -434,9 +434,9 @@ class ServersDict(CaselessDict,Object):
                 ss=TServer(name=s,parent=self)
                 ss.init_from_db(self.db)
                 self[s] = ss
-            except Exception,e:
-                print('exception loading %s server: %s' % (s,str(e)[:100]+'...'))
-                print(traceback.format_exc())
+            except Exception as e:
+                print(('exception loading %s server: %s' % (s,str(e)[:100]+'...')))
+                print((traceback.format_exc()))
         #print 'load_from_servers_list(%d) took %f seconds' % (len(servers_list),time.time()-t0)
                     
     def check_servers_names(self,servers_list):
@@ -454,7 +454,7 @@ class ServersDict(CaselessDict,Object):
 
     def get_db_device(self):
         """ It creates a proxy to a dbserver device declared inside sys/database/* branch of Tango database. """
-        dev = [d for d in self.proxies.keys()[:] if d.lower().startswith('sys/database/')]
+        dev = [d for d in list(self.proxies.keys())[:] if d.lower().startswith('sys/database/')]
         if dev: return self.proxies[dev[0]]
         else:
             member = self.db.get_device_member('sys/database/*')
@@ -479,7 +479,7 @@ class ServersDict(CaselessDict,Object):
                 members = self.db.get_device_member('%s/%s/%s'%(d,f,member))
                 [result.add('%s/%s/%s'%(d,f,m)) for m in members]
         if not result:
-            print('get_devs_from_db(%s): no matches found.'%dev_name)
+            print(('get_devs_from_db(%s): no matches found.'%dev_name))
         return result
             
     def get_hosts_from_db(self,filt='*'):
@@ -495,7 +495,7 @@ class ServersDict(CaselessDict,Object):
     def get_device_server(self,device):
         """This method gets the server related to a device; if it is not in the dict gets it from the Database."""
         device = device.lower()
-        for s in self.values():
+        for s in list(self.values()):
             if device in s.get_device_list():
                 return s.name
         #Using database because DeviceProxy.info() was terribly slow if timeout
@@ -504,15 +504,15 @@ class ServersDict(CaselessDict,Object):
             info = db_dev.command_inout('DbImportDevice',device)
             server,host,klass = info[1][3:6]
             return server
-        except Exception,e:
-            print('Impossible to retrieve server for device %s: %s'%(device,str(e)[:100]+'...' ))
+        except Exception as e:
+            print(('Impossible to retrieve server for device %s: %s'%(device,str(e)[:100]+'...' )))
             #self.log.warning('Try ServersDict.load_all_servers (time consuming)')
         pass
         
     def get_device_class(self,device,server=''):
         """This method gets the server related to a device; if it is not in the dict gets it from the Database."""
-        for s in [self[server]] if server else self.values():
-            for klass,devs in s.classes.items():
+        for s in [self[server]] if server else list(self.values()):
+            for klass,devs in list(s.classes.items()):
                 if device in devs:
                     return klass
         #self.log.warning('get_class_for_device doesnt provide information for servers not loaded yet.')
@@ -520,7 +520,7 @@ class ServersDict(CaselessDict,Object):
             
     def get_device_host(self,device):
         """This method gets the server related to a device; if it is not in the dict gets it from the Database."""
-        for s in self.values():
+        for s in list(self.values()):
             if device in s.get_device_list():
                 return s.host
         #self.log.warning('get_device_host doesnt provide information for servers not loaded yet.')
@@ -528,15 +528,15 @@ class ServersDict(CaselessDict,Object):
         
     def get_host_servers(self,host):
         """It inspects all pre-loaded servers and returns those controlled in the specified host."""
-        return [ss.name for ss in self.values() if ss.host.lower() == host.lower().split('.')[0].strip()]
+        return [ss.name for ss in list(self.values()) if ss.host.lower() == host.lower().split('.')[0].strip()]
     
     def get_host_level_servers(self,host,level=0,controlled=True):
         """It inspects all pre-loaded servers and returns those controlled in the specified host and level."""
-        return [ss.name for ss in self.values() if ss.host.lower() == host.lower().split('.')[0].strip() and (ss.level==level or (not ss.controlled and not controlled))]    
+        return [ss.name for ss in list(self.values()) if ss.host.lower() == host.lower().split('.')[0].strip() and (ss.level==level or (not ss.controlled and not controlled))]    
     
     def get_class_servers(self,klass):
         """This method gets the servers related to a Class."""
-        result = [s.name for s in self.itervalues() if klass in s.classes];
+        result = [s.name for s in list(self.values()) if klass in s.classes];
         if not result:
             #Use the Database to get the values
             #self.log.error('Impossible to retrieve server for class %s'%(klass))
@@ -547,7 +547,7 @@ class ServersDict(CaselessDict,Object):
     def get_class_devices(self,klass):
         """This method gets the devices related to a Class."""
         result = set()
-        [result.update(s.classes[klass]) for s in self.values() if klass in s.classes];
+        [result.update(s.classes[klass]) for s in list(self.values()) if klass in s.classes];
         if not result:
             #Use the Database to get the values
             #self.log.error('Impossible to retrieve server for class %s'%(klass))
@@ -558,27 +558,27 @@ class ServersDict(CaselessDict,Object):
     def get_all_classes(self):
         """It returns all classes appearing in servers."""
         result = set()
-        for s in self.values():
-            [result.add(c) for c in s.classes.keys()]
+        for s in list(self.values()):
+            [result.add(c) for c in list(s.classes.keys())]
         return list(filter(bool,result))
         
     def get_all_hosts(self):
         """It returns all hosts containing servers."""
-        return list(filter(bool,set(s.host for s in self.values())))
+        return list(filter(bool,set(s.host for s in list(self.values()))))
     
     def get_all_devices(self):
         """It returns all devices contained in servers."""
-        return list(chain(*[s.get_device_list() for s in self.values()]))
+        return list(chain(*[s.get_device_list() for s in list(self.values())]))
     
     def get_server_states(self,update=False):
         result = {}
         if update: self.update_states()
-        [result.__setitem__(s.name,s.state) for s in self.values()]
+        [result.__setitem__(s.name,s.state) for s in list(self.values())]
         return result
     
     def get_server_tree(self):
         """ @todo It returns a dictionary with the shape {'server':{'class':'device'}} """
-        result = dict.fromkeys(self.keys())
+        result = dict.fromkeys(list(self.keys()))
         for k in result:
             result[k] = self[k].classes
         return result
@@ -620,7 +620,7 @@ class ServersDict(CaselessDict,Object):
         """ Updates states for given servers or the given class or all states if no class is given.
         The asynch argument controls if the state test is done in a separate thread for each server or not.
         """
-        servers = servers or (class_type and self.get_class_servers(class_type)) or self.keys()
+        servers = servers or (class_type and self.get_class_servers(class_type)) or list(self.keys())
         result = dict.fromkeys(servers,None)
         try:
             if not asynch: raise ImportError
@@ -633,7 +633,7 @@ class ServersDict(CaselessDict,Object):
                     #if value is None: self.log.debug('%s.ping() ... failed!'%(server)) #LOG DOESNT WORK IN THREADS
                     #else: self.log.debug('%s.ping() ... Alive'%(server)) #LOG DOESNT WORK IN THREADS
                     return value
-                except Exception,e:
+                except Exception as e:
                     return str(e)[:100]+'...'#str(traceback.format_exc())
             lock = threading.Lock()
             wait = threading.Event().wait
@@ -649,7 +649,7 @@ class ServersDict(CaselessDict,Object):
             wait(0.1)
             
             while len(threads):
-                for s_name,thread in threads.items():
+                for s_name,thread in list(threads.items()):
                     if not thread.isAlive():
                         result[s_name]=thread.result
                         #self.log.debug('%s thread finished! (%s)' % (s_name,thread.result))
@@ -679,7 +679,7 @@ class ServersDict(CaselessDict,Object):
         wait=0 performs no wait
         '''
         if servers_list is None: 
-            servers_list = sorted(self.keys(),key=(lambda s: s in self and self[s].level or 0))
+            servers_list = sorted(list(self.keys()),key=(lambda s: s in self and self[s].level or 0))
         elif type(servers_list) not in [list,set,tuple]: 
             servers_list = [servers_list]
         done = False
@@ -691,14 +691,14 @@ class ServersDict(CaselessDict,Object):
         full_servers_list = []
         for s_name in servers_list:
             if s_name in self and str(self[s_name].ping()) == 'ON':
-                print('Server %s is already running'%s_name)
+                print(('Server %s is already running'%s_name))
                 continue
             if not host: 
                 try:
                     if s_name in self: self[s_name].init_from_db(self.db)
                     self[s_name].get_server_level()
-                except Exception,e: 
-                    print('start/stop_servers(%s): Unable to retrieve host/level information: %s'%(s_name,e))
+                except Exception as e: 
+                    print(('start/stop_servers(%s): Unable to retrieve host/level information: %s'%(s_name,e)))
             s_host = host or self[s_name].host or socket.gethostname()
             s_host = s_host.split('.')[0].strip() 
             s_level = s_name in self and self[s_name].level or 0
@@ -713,7 +713,7 @@ class ServersDict(CaselessDict,Object):
             else:
                 #self.log.error('Host has not been defined; server  %s cannot be started'%target)
                 continue
-            print( 'StartingServer '+target+' using '+starter+' ...')
+            print(( 'StartingServer '+target+' using '+starter+' ...'))
             try:
                 done = False
                 self.proxies.get(starter).command_inout('DevStart',target)
@@ -727,8 +727,8 @@ class ServersDict(CaselessDict,Object):
                         done=True
                     except: pass
                     ct-=1
-            except Exception,e:
-                print 'Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...')
+            except Exception as e:
+                print(('Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...')))
                 #self.log.error('Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...'))
             t1 = time.time()
             #if not done:
@@ -737,11 +737,11 @@ class ServersDict(CaselessDict,Object):
                 #self.log.info('The server %s Start verified after %s seconds'%(s_name,(t1-t0)))             
             if host and 'tango/admin/%s'%host in self.proxies:
                 try: self.proxies['tango/admin/%s'%host].UpdateServersInfo()   
-                except Exception,e: print('Unable to update %s Starter: %s'%(host,e))
+                except Exception as e: print(('Unable to update %s Starter: %s'%(host,e)))
         return done
             
     def start_all_servers(self): 
-        return self.start_servers(sorted(self.keys(),key=(lambda s: s in self and self[s].level or 0)))
+        return self.start_servers(sorted(list(self.keys()),key=(lambda s: s in self and self[s].level or 0)))
         
     #def server_StartNForClass(self,c_name,N,wait=3):
         #'''def server_StartNForClass(self,c_name,N,wait=3):Starts N servers of a given Class'''
@@ -760,7 +760,7 @@ class ServersDict(CaselessDict,Object):
         '''
         done = False
         if servers_list is None: 
-            servers_list = sorted(self.keys(),key=(lambda s: s in self and (-self[s].level) or 0))
+            servers_list = sorted(list(self.keys()),key=(lambda s: s in self and (-self[s].level) or 0))
         elif type(servers_list) not in [list,set,tuple]:
             servers_list = [servers_list]
         new_servers = [s for s in servers_list if s not in self]
@@ -774,15 +774,15 @@ class ServersDict(CaselessDict,Object):
                 try:
                     server.get_proxy().command_inout('Kill')
                     done = True
-                except Exception,e:
-                    print('Exception in server_Stop(%s): %s'%(server.name,str(e)[:100]+'...'))
+                except Exception as e:
+                    print(('Exception in server_Stop(%s): %s'%(server.name,str(e)[:100]+'...')))
             else:
-                print( 'KillingServer %s (idle or not running)' % server.name)
+                print(( 'KillingServer %s (idle or not running)' % server.name))
                 try:
                     self.proxies[server.get_starter_name()].HardKillServer(server.name)
                     done = True
-                except Exception,e:
-                    print('Exception in server_Kill(%s): may be not running'%(server.name))
+                except Exception as e:
+                    print(('Exception in server_Kill(%s): may be not running'%(server.name)))
         
         hosts = [self[s].host for s in servers_list if s in self]
         for host in hosts:
@@ -790,18 +790,18 @@ class ServersDict(CaselessDict,Object):
                 try:
                     starter = self.proxies['tango/admin/%s'%host]
                     starter.UpdateServersInfo()
-                except Exception,e:
-                    print('Unable to contact with Starter in host %s: %s' % (host,e))
+                except Exception as e:
+                    print(('Unable to contact with Starter in host %s: %s' % (host,e)))
         return done
             
     def stop_all_servers(self): 
-        return self.stop_servers(sorted(self.keys(),key=(lambda s: s in self and (-self[s].level) or 0)))    
+        return self.stop_servers(sorted(list(self.keys()),key=(lambda s: s in self and (-self[s].level) or 0)))    
             
     def restart_servers(self,servers_list=None,wait=5.):
         '''Performs stop_servers followed by start_servers.'''
-        if servers_list is None: servers_list = self.keys()
+        if servers_list is None: servers_list = list(self.keys())
         self.stop_servers(servers_list)
-        print('Waiting %f seconds ...'%wait)
+        print(('Waiting %f seconds ...'%wait))
         threading.Event().wait(wait)
         self.start_servers(servers_list)
         return
@@ -812,7 +812,7 @@ class ServersDict(CaselessDict,Object):
         '''
         done = False
         if servers_list is None: 
-            servers_list = self.keys()
+            servers_list = list(self.keys())
         elif type(servers_list) not in [list,set,tuple]:
             servers_list = [servers_list]
         new_servers = [s for s in servers_list if s not in self]
@@ -821,14 +821,14 @@ class ServersDict(CaselessDict,Object):
             self.load_from_servers_list(new_servers)        
         for server_name in servers_list:
             server_name = self[server_name].name
-            print( 'KillingServer '+server_name)
+            print(( 'KillingServer '+server_name))
             try:
                 host = self[server_name].host
                 starter = self.proxies['tango/admin/%s'%host]
                 starter.HardKillServer(server_name)
                 done = True
-            except Exception,e:
-                print('Exception in kill_servers(%s): %s'%(server_name,str(e)[:100]+'...'))
+            except Exception as e:
+                print(('Exception in kill_servers(%s): %s'%(server_name,str(e)[:100]+'...')))
                         
         hosts = [self[s].host for s in servers_list if s in self]
         for host in hosts:
@@ -836,12 +836,12 @@ class ServersDict(CaselessDict,Object):
                 try:
                     starter = self.proxies['tango/admin/%s'%host]
                     starter.UpdateServersInfo()
-                except Exception,e:
-                    print('Unable to contact with Starter in host %s: %s' % (host,e))
+                except Exception as e:
+                    print(('Unable to contact with Starter in host %s: %s' % (host,e)))
         return done        
             
     def kill_os(self,name):
-        print 'in kill_os(%s)'%name
+        print(('in kill_os(%s)'%name))
         if type(name) is not list:
             name = name.split('/')
         import subprocess
@@ -850,21 +850,21 @@ class ServersDict(CaselessDict,Object):
         greps = []
         for n in name:
             command = 'grep -i %s'%n
-            print 'command is %s' % command
+            print(('command is %s' % command))
             greps.append(subprocess.Popen(command,shell=True,stdin=prev.stdout,stdout=subprocess.PIPE))
             prev = greps[-1]
         result = prev.communicate()[0]
         if result:
             proc = result.split('\n')[0] 
-            print 'hard_kill: killing %s'%proc
+            print(('hard_kill: killing %s'%proc))
             pid = proc.split(' ')[0]
             comm = 'kill -9 %s'%pid
-            print 'hard_killed: %s' % comm
+            print(('hard_killed: %s' % comm))
             try:
                 os.system(comm)
-                print 'hard_kill: Process killed'
-            except Exception,e:
-                print 'hard_kill: Unable to kill process, %s' % (str(e)[:100]+'...')
+                print('hard_kill: Process killed')
+            except Exception as e:
+                print(('hard_kill: Unable to kill process, %s' % (str(e)[:100]+'...')))
             return True
         else:
             print('hard_kill: Process %s not found, not killed.')
@@ -906,12 +906,12 @@ class ServersDict(CaselessDict,Object):
         
     def set_server_level(self,server_name,host,level):
         """ It executes a DbPutServerInfo command in dbserver device. """
-        print 'DUE TO export_device ISSUES THIS METHOD IS NOT SUITABLE FOR ADDING NEW SERVERS, USE devs2starter.jy INSTEAD'
+        print('DUE TO export_device ISSUES THIS METHOD IS NOT SUITABLE FOR ADDING NEW SERVERS, USE devs2starter.jy INSTEAD')
         mode = 1 if host or level else 0
         host = host.split('.')[0].strip() or 'localhost' if mode else ''
         level = int(level) if level else 0
         dbserver = self.get_db_device()
-        print 'ServersDict.set_server_level(%s,%s,%s)'%(server_name,host,level)
+        print(('ServersDict.set_server_level(%s,%s,%s)'%(server_name,host,level)))
         dbserver.DbPutServerInfo([str(s) for s in (server_name,host,mode,level)])
         if server_name in self: self[server_name].update_level(host,level)
         if host: self.proxies['tango/admin/%s'%host].UpdateServersInfo()
@@ -931,7 +931,7 @@ class ServersDict(CaselessDict,Object):
             di = PyTango.DbDevInfo()
             di.server,di._class,di.name = server_name,class_name,dev
             self.db.add_device(di)
-            print 'added %s.%s.%s to Database' % (di.server,di._class,di.name)
+            print(('added %s.%s.%s to Database' % (di.server,di._class,di.name)))
         return
     ## @}
 Astor = ServersDict

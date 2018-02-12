@@ -23,7 +23,7 @@ def export(devices,suffix='.json',preffix=''):
       files.append(preffix+dev2file(d,suffix))
       json.dump(dict2json(values),open(files[-1],'w'))
     except:
-      print('%s failed'%d)
+      print(('%s failed'%d))
       traceback.print_exc()
   return files 
 
@@ -48,7 +48,7 @@ def load(tango_host,instance,devices,replace={},overwrite=False,def_class='Simul
         df,dd = dev2file(dd),dd
     filenames[dd] = df
       
-  for dd,df in filenames.items():
+  for dd,df in list(filenames.items()):
     
     exists =  ft.get_matching_devices(dd)
     if exists and not overwrite:
@@ -56,11 +56,11 @@ def load(tango_host,instance,devices,replace={},overwrite=False,def_class='Simul
     
     data = json.load(open(df))
     props = data['properties']
-    props = dict((str(k),map(str,v)) for k,v in props.items())
+    props = dict((str(k),list(map(str,v))) for k,v in list(props.items()))
     
-    for r,rr in replace.items():
+    for r,rr in list(replace.items()):
       dd = clsub(r,rr,dd)
-      for p,pp in props.items():
+      for p,pp in list(props.items()):
         for i,l in enumerate(pp):
           props[p][i] = clsub(r,rr,l)
           
@@ -80,7 +80,7 @@ def load(tango_host,instance,devices,replace={},overwrite=False,def_class='Simul
       
       #if data['dev_class'] not in ('PySignalSimulator','PyAttributeProcessor','PyStateComposer','CopyCatDS'):
         
-      vals = dict((str(k),v['value'] if v else 0) for k,v in data['attributes'].items())
+      vals = dict((str(k),v['value'] if v else 0) for k,v in list(data['attributes'].items()))
       dynattrs = []
       attrprops = fn.dicts.defaultdict(dict)
 
@@ -105,7 +105,7 @@ def load(tango_host,instance,devices,replace={},overwrite=False,def_class='Simul
       ft.put_device_property(dd,'DynamicAttributes',dynattrs)
       try:
         ft.get_database().put_device_attribute_property(dd,
-          dict((k,v) for k,v in attrprops[dd].items() if v))
+          dict((k,v) for k,v in list(attrprops[dd].items()) if v))
       except:
         fn.time.sleep(3.)
     

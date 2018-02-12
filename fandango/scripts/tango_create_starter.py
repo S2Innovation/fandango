@@ -64,8 +64,8 @@ def main():
   """
 
   for dname in ['tango/admin/'+h.split('.')[0] for h in hostnames]:
-   print 'Initial values for properties of ',dname,' are ', \
-     db.get_device_property(dname,['StartDsPath','WaitForDriverStartup','UseEvents','StartServersAtStartup','InterStartupLevelWait','ServerStartupTimeout'])
+   print(('Initial values for properties of ',dname,' are ', \
+     db.get_device_property(dname,['StartDsPath','WaitForDriverStartup','UseEvents','StartServersAtStartup','InterStartupLevelWait','ServerStartupTimeout'])))
    db.put_device_property(dname,{'StartDsPath':[
                   '~/devservers',
                   '~/ds',
@@ -77,8 +77,8 @@ def main():
    db.put_device_property(dname,{'StartServersAtStartup':['True']})
    db.put_device_property(dname,{'InterStartupLevelWait':[30]})
    #db.put_device_property(dname,{'ServerStartupTimeout':[60]})
-   print 'Final values for properties of ',dname,' are ', \
-     db.get_device_property(dname,['StartDsPath','WaitForDriverStartup','UseEvents','StartServersAtStartup','InterStartupLevelWait','ServerStartupTimeout'])
+   print(('Final values for properties of ',dname,' are ', \
+     db.get_device_property(dname,['StartDsPath','WaitForDriverStartup','UseEvents','StartServersAtStartup','InterStartupLevelWait','ServerStartupTimeout'])))
           
  
 if __name__ == '__main__':

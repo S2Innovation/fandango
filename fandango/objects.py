@@ -276,7 +276,7 @@ def locked(f,*args,**kwargs):
         _lock.acquire()
         return f(*args,**kwargs)
     except Exception as e:
-        print('Exception in%s(*%s,**%s): %s' % (f.__name__,args,kwargs,e))
+        print(('Exception in%s(*%s,**%s): %s' % (f.__name__,args,kwargs,e)))
     finally:
         _lock.release()
             

@@ -58,8 +58,8 @@ TM4 = '.',False
 
 def generate_rest_files(module,path='source'):
   import fandango
-  print('\n'*5)
-  print('Writing documentation settings to %s/*rst' % (path))
+  print(('\n'*5))
+  print(('Writing documentation settings to %s/*rst' % (path)))
   if fandango.isString(module): module = fandango.loadModule(module)
   submodules = [(o,v) for o,v in list(vars(module).items())
     if inspect.ismodule(v) and v.__name__.startswith(module.__name__)]

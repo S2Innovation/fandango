@@ -58,6 +58,7 @@ It will centralize the DeviceProxy access, and will avoid its use when internal 
 import PyTango
 import threading
 from . import objects
+import collections
 
 #These objects will be used by DeviceServer to create PyTango.PyUtil and PyTango.Util and keep servers data
 #py = None
@@ -144,15 +145,15 @@ class DeviceList(dict):
         #signal.signal(signal.SIGABRT,self.delete_device)
         #signal.signal(signal.SIGKILL,self.delete_device)
         while not self.dp_stopEvent.isSet():
-            for dname,idev in self.items():
+            for dname,idev in list(self.items()):
                 if self.dp_stopEvent.isSet(): break
-                print('*'*80)
+                print(('*'*80))
                 print('in DevsList.check_proxies, ...')
-                print('*'*80)
+                print(('*'*80))
                 
                 self.dp_lock.acquire()
                 if self[dname].State==PyTango.DevState.UNKNOWN:
-                    print('in DevsList.check_proxies, [%s] is UNKNOWN'%dname)
+                    print(('in DevsList.check_proxies, [%s] is UNKNOWN'%dname))
                     try:
                         idev.dp = PyTango.DeviceProxy(dname)
                         idev.dp.set_timeout_millis(1000)
@@ -161,9 +162,9 @@ class DeviceList(dict):
                         #idev.check_dp_attributes()
                         idev.dp_errors=0
                         idev.last_time=time.time()                    
-                        print("In DevsList.check_proxies: proxy to "+self.ParentName+" device initialized.")
+                        print(("In DevsList.check_proxies: proxy to "+self.ParentName+" device initialized."))
                     except Exception as e:
-                        print('EXCEPTION in DevsList.check_proxies:, %s Proxy Initialization failed!'%dname,getLastException())
+                        print(('EXCEPTION in DevsList.check_proxies:, %s Proxy Initialization failed!'%dname,getLastException()))
                         idev.State=PyTango.DevState.UNKNOWN
                         idev.dp_errors+=1
                         #del self.dp; self.dp=None
@@ -172,7 +173,7 @@ class DeviceList(dict):
                         idev.dp.ping()
                         #idev.check_dp_attributes_epoch()
                     except Exception as e:
-                        print('EXCEPTION in DevsList.check_proxies, Ping to device ',self.ParentName,' failed!: ',getLastException())
+                        print(('EXCEPTION in DevsList.check_proxies, Ping to device ',self.ParentName,' failed!: ',getLastException()))
                         idev.State=PyTango.DevState.UNKNOWN
                         self.dp_errors+=1
                         #del self.dp; self.dp=None
@@ -227,7 +228,7 @@ class innerDevice(objects.Object):
         for rec in self.subscribers:
             if hasattr(rec,'push_event'): rec.push_event(_event)
             elif isinstance(rec,threading.Event): rec.set()
-            elif callable(rec): rec()
+            elif isinstance(rec, collections.Callable): rec()
     pass
 
 #class innerDevProxy(objects.Object):

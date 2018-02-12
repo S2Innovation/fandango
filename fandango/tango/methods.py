@@ -45,6 +45,7 @@ Methods for Astor-like management will go to fandango.servers
 """
 
 from .defaults import *
+import collections
 
 __test__ = {}
        
@@ -994,7 +995,7 @@ def __test_method__(args=None):
       elif args[0] in globals():
           f = globals().get(args[0])
           try:
-              if callable(f):
+              if isinstance(f, collections.Callable):
                   args = [fandango.trial(lambda:eval(a) if isString(a) else a,
                                          excepts=a) for a in args[1:]]
                   print((f(*args)))

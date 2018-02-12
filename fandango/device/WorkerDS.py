@@ -185,7 +185,7 @@ class WorkerDS(PyTango.Device_4Impl):
     #    Device destructor
     #------------------------------------------------------------------
     def delete_device(self):
-        print("[Device delete_device method] for device",self.get_name())
+        print(("[Device delete_device method] for device",self.get_name()))
         try:
           self.event.set()
           self.waiter.set()
@@ -200,7 +200,7 @@ class WorkerDS(PyTango.Device_4Impl):
     #    Device initialization
     #------------------------------------------------------------------
     def init_device(self):
-        print("In ", self.get_name(), "::init_device{}(%s)"%self.get_init_count())
+        print(("In ", self.get_name(), "::init_device{}(%s)"%self.get_init_count()))
         try: 
             DynamicDS.init_device(self) #New in Fandango 11.1
         except:
@@ -214,8 +214,8 @@ class WorkerDS(PyTango.Device_4Impl):
         missing = [k for k,v in list(default_props.items()) if v and k.lower() not in list(map(str.lower,all_props))]
         if missing:
           print('Updating default property values')
-          print(list(default_props.keys()))
-          print(list(all_props.keys()))
+          print((list(default_props.keys())))
+          print((list(all_props.keys())))
           print(missing)
           self.get_db().put_device_property(self.get_name(),dict((k,default_props[k]) for k in missing))
         
@@ -241,7 +241,7 @@ class WorkerDS(PyTango.Device_4Impl):
               if k not in self._locals: 
                 if m[0] in ('sys','os'): 
                   raise Exception('%s not allowed'%str(m))
-                print('%s.init_device(): loading %s as %s' % (self.get_name(),m,k))
+                print(('%s.init_device(): loading %s as %s' % (self.get_name(),m,k)))
                 l = imp.load_module(m[0],*imp.find_module(m[0]))
                 if len(m)==1:
                   self._locals[k or m[0]] = l
@@ -254,7 +254,7 @@ class WorkerDS(PyTango.Device_4Impl):
             
         self.set_state(PyTango.DevState.INIT)
         self.Start()
-        print("Out of ", self.get_name(), "::init_device()")
+        print(("Out of ", self.get_name(), "::init_device()"))
 
     #------------------------------------------------------------------
     #    Always excuted hook method
@@ -406,9 +406,9 @@ def main(args=None):
         U.server_run()
 
     except PyTango.DevFailed as e:
-        print('-------> Received a DevFailed exception:',e)
+        print(('-------> Received a DevFailed exception:',e))
     except Exception as e:
-        print('-------> An unforeseen exception occured....',e)  
+        print(('-------> An unforeseen exception occured....',e))  
 
 if __name__ == '__main__':
     main()

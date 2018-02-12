@@ -79,7 +79,7 @@ def getStateLed(model):
     from taurus.qt.qtgui.display import TaurusStateLed
     led = TaurusStateLed()
     led.setModel(model)
-    print 'In TaurusStateLed.setModel(%s)'%model
+    print(('In TaurusStateLed.setModel(%s)'%model))
     return led
 
 def checkApplication(args=None):
@@ -108,9 +108,9 @@ def getRandomColor(i=None):
     import random
     ranges = 50,230
     if i is not None:
-        ranges = map(int,(170,256/(i+.01),256%(i+0.01),256-256/(i+0.01)) if i<256 else (170,i/256.,i%256))
+        ranges = list(map(int,(170,256/(i+.01),256%(i+0.01),256-256/(i+0.01)) if i<256 else (170,i/256.,i%256)))
         ranges = min(ranges),max(ranges)
-        print ranges
+        print(ranges)
     return Qt.QColor(
         int(random.randint(*ranges)),
         int(random.randint(*ranges)),
@@ -201,7 +201,7 @@ class QOptionDialog(QDialogWidget):
         
     def accept(self):
       self.accepted = True
-      for k,w in self._edits.items():
+      for k,w in list(self._edits.items()):
         v = str(w.text())
         self._model[k] = (self.cast or str)(v)
       QDialogWidget.accept(self)
@@ -216,7 +216,7 @@ class QExceptionMessage(object):
         if not self.message or len(args)<2:
             self.message+=traceback.format_exc()
         self.qmb = Qt.QMessageBox(Qt.QMessageBox.Warning,"Exception","The following exception occurred:\n\n%s"%self.message,Qt.QMessageBox.Ok)
-        print 'fandango.qt.QExceptionMessage(%s)'%self.message
+        print(('fandango.qt.QExceptionMessage(%s)'%self.message))
         self.qmb.exec_()
 
 class QColorDictionary(SortedDict,Singleton):
@@ -233,16 +233,16 @@ class QColorDictionary(SortedDict,Singleton):
             rgb = c.getRgb()[:3]
             if not sum(rgb): last['black'] = c
             elif sum(rgb)==255*3: last['white'] = c
-            elif not any(v.getRgb()[:3]==c.getRgb()[:3] for v in colors.values()):
+            elif not any(v.getRgb()[:3]==c.getRgb()[:3] for v in list(colors.values())):
                 colors[n] = c
             else: last[n] = c
         if sorted:
             self.distances = {}
-            dark = [(n,colors.pop(n)) for n in colors.keys() if max(colors[n].getRgb()[:3])<.25*(255*3)]
-            light = [(n,colors.pop(n)) for n in colors.keys() if min(colors[n].getRgb()[:3])>.75*(255*3)]
+            dark = [(n,colors.pop(n)) for n in list(colors.keys()) if max(colors[n].getRgb()[:3])<.25*(255*3)]
+            light = [(n,colors.pop(n)) for n in list(colors.keys()) if min(colors[n].getRgb()[:3])>.75*(255*3)]
             self.update(
                 sorted(
-                    ((n,colors.pop(n)) for n in colors.keys() if all(c in (0,255) for c in colors[n].getRgb()[:3])),
+                    ((n,colors.pop(n)) for n in list(colors.keys()) if all(c in (0,255) for c in colors[n].getRgb()[:3])),
                     key=(lambda t:sum(t[1].getRgb()[:3]))
                     )
                 )
@@ -253,7 +253,7 @@ class QColorDictionary(SortedDict,Singleton):
             #for n,color in sorted(colors,key=lambda t: -self.get_diff_code(t[1])): self[n] = color
             x = len(colors)
             for i in range(x):
-                n = sorted(colors.items(),key=lambda t: -self.get_diff_code(*t))[0][0]
+                n = sorted(list(colors.items()),key=lambda t: -self.get_diff_code(*t))[0][0]
                 self[n] = colors.pop(n)
             self.update(light)
             self.update(dark)
@@ -266,7 +266,7 @@ class QColorDictionary(SortedDict,Singleton):
         self.widget = Qt.QScrollArea()
         w = Qt.QWidget()
         w.setLayout(Qt.QVBoxLayout())
-        for n,c in self.items():
+        for n,c in list(self.items()):
             l = Qt.QLabel('%s: %s, %s'%(n,str(c.getRgb()[:3]),self.distances.get(n,None)))
             l.setStyleSheet('QLabel { background-color: rgba(%s) }'%(','.join(str(x) for x in c.getRgb())))
             w.layout().addWidget(l)
@@ -284,7 +284,7 @@ class QColorDictionary(SortedDict,Singleton):
         self.distances[name] = [sum((abs(x-y) if abs(x-y)>MinDiff else 0) 
             #for x,y in zip(self.get_rgb_normalized(color),self.get_rgb_normalized(k)))
             for x,y in zip(color.getRgb()[:3],k.getRgb()[:3]))  
-                for k in self.values()[-NValues:]]
+                for k in list(self.values())[-NValues:]]
         return sum(self.distances[name]) if not any(d<MinDiff*1.5 for d in self.distances[name]) else 0
         
 
@@ -342,16 +342,16 @@ class QCustomTabWidget(Qt.QWidget):
         self.emit(Qt.SIGNAL("currentChanged(int)"),self.stackWidget.currentIndex())
 
     def addTab(self,widget,label,icon=None,width=50,height=60):
-        print '-'*80
-        print 'Adding %s tab to QCustomTabWidget(%d)'%(label,self.count())
+        print(('-'*80))
+        print(('Adding %s tab to QCustomTabWidget(%d)'%(label,self.count())))
         if label in self.buttons: 
-            print ('======> Button(%s) already exists!,\n\t %s rejected!!'%(label,widget))
+            print(('======> Button(%s) already exists!,\n\t %s rejected!!'%(label,widget)))
         else:
             if icon is None and self.icon_builder is not None: 
                 try: icon = self.icon_builder(label)
                 except: 
-                    print 'Unable to get icon widget'
-                    print traceback.format_exc()
+                    print('Unable to get icon widget')
+                    print((traceback.format_exc()))
             button = QCustomPushButton(label,icon,parent=self.buttonFrame)
             button.setCheckable(True)
             self.buttons[label] = button
@@ -378,7 +378,7 @@ class QCustomTabWidget(Qt.QWidget):
             self.removeTab(0)
         
     def setCurrentIndex(self,index): 
-        print 'In QCustomTabWidget.setCurrentIndex(%s)'%index
+        print(('In QCustomTabWidget.setCurrentIndex(%s)'%index))
         button = self.buttonGroup.buttons()[index]
         if not button.check(): button.setChecked(True)
         return self.stackWidget.setCurrentIndex()
@@ -394,19 +394,19 @@ class QCustomTabWidget(Qt.QWidget):
         if isString(widget): return self.labelIndex(widget)
         else: return self.stackWidget.indexOf(widget)
     def labelOf(self,widget):
-        return (k for k,v in self.widgets.items() if v is widget).next()
+        return next((k for k,v in list(self.widgets.items()) if v is widget))
     def currentIndex(self): return self.stackWidget.currentIndex()
     def setCurrentWidget(self,widget,label=''): 
         self.stackWidget.setCurrentWidget(widget)
         if (not label or label not in self.buttons):
-            for l,w in self.widgets.items():
+            for l,w in list(self.widgets.items()):
                 if w==widget:
                     label = l
                     break
         if label: 
             self.buttons[label].setBold(True)
             self.buttons[label].setDown(True)
-            for l,b in self.buttons.items():
+            for l,b in list(self.buttons.items()):
                 if l!=label:
                     #print 'In QCustomTabWidget.setCurrentWidget(%s): push down %s(%s)'%(label,b,l)
                     (b.setDown(False),b.setBold(False))
@@ -414,43 +414,43 @@ class QCustomTabWidget(Qt.QWidget):
     def currentWidget(self): return self.stackWidget.currentWidget()
     def tabBar(self): return self.buttonFrame
     def isTabEnabled(self,index): 
-        print 'QCustomTabWidget.TabEnabled: Not implemented!'
+        print('QCustomTabWidget.TabEnabled: Not implemented!')
         return True
     def setTabEnabled(self,index,enable): 
-        print 'QCustomTabWidget.TabEnabled: Not implemented!'
+        print('QCustomTabWidget.TabEnabled: Not implemented!')
         return
     def setTabShape(self,shape): 
-        print 'QCustomTabWidget.TabShape: Not implemented!'
+        print('QCustomTabWidget.TabShape: Not implemented!')
         return
     def tabShape(self):
-        print 'QCustomTabWidget.TabShape: Not implemented!'
+        print('QCustomTabWidget.TabShape: Not implemented!')
         return Qt.QTabWidget.Rounded
     def setTabPosition(self,position):
-        print 'QCustomTabWidget.TabPosition: Not implemented!'
+        print('QCustomTabWidget.TabPosition: Not implemented!')
         return
     def tabPosition(self):
-        print 'QCustomTabWidget.TabPosition: Not implemented!'
+        print('QCustomTabWidget.TabPosition: Not implemented!')
         return Qt.QTabWidget.North
     def setElideMode(self,elide):
-        print 'QCustomTabWidget.ElideMode: Not implemented!'
+        print('QCustomTabWidget.ElideMode: Not implemented!')
         return
     def elideMode(self):
-        print 'QCustomTabWidget.ElideMode: Not implemented!'
+        print('QCustomTabWidget.ElideMode: Not implemented!')
         return Qt.Qt.ElideNone
     def setUsesScrollButtons(self,uses):
-        print 'QCustomTabWidget.UsesScrollButtons: Not implemented!'
+        print('QCustomTabWidget.UsesScrollButtons: Not implemented!')
         return
     def usesScrollButtons(self):
-        print 'QCustomTabWidget.UsesScrollButtons: Not implemented!'
+        print('QCustomTabWidget.UsesScrollButtons: Not implemented!')
         return True
     def tabText(self,index): 
-        print 'QCustomTabWidget.TabText: Not implemented!'
+        print('QCustomTabWidget.TabText: Not implemented!')
         return ''
     def tabToolTip(self,index): 
-        print 'QCustomTabWidget.TabToolTip: Not implemented!'
+        print('QCustomTabWidget.TabToolTip: Not implemented!')
         return ''
     def setTabToolTip(self,index,tip): 
-        print 'QCustomTabWidget.TabToolTip: Not implemented!'
+        print('QCustomTabWidget.TabToolTip: Not implemented!')
         return
         
 #from taurus.qt.qtgui.display import TaurusStateLed
@@ -481,7 +481,7 @@ class QCustomTabWidget(Qt.QWidget):
 
 class TauFakeEventReceiver():
     def event_received(self,source,type_,value):
-        print '%s: Event from %s: %s(%s)'% (time.ctime(),source,type_,shortstr(getattr(value,'value',value)))
+        print(('%s: Event from %s: %s(%s)'% (time.ctime(),source,type_,shortstr(getattr(value,'value',value)))))
         
 class TaurusImportException(Exception):
     pass
@@ -495,7 +495,7 @@ try:
     from taurus.qt.qtgui.graphic import TaurusGraphicsItem
     from taurus.qt.qtgui.container.tauruswidget import TaurusWidget
 except:
-    print 'Unable to import Taurus!'
+    print('Unable to import Taurus!')
     taurus,colors,taurusbase,tie = None,None,None,TaurusImportException
     TaurusBaseComponent,TaurusEventType,TaurusAttribute,TaurusGraphicsItem,TaurusWidget = tie,tie,tie,tie,tie
 
@@ -504,7 +504,7 @@ def getColorsForValue(value,palette = getattr(colors,'QT_DEVICE_STATE_PALETTE',N
     Get QColor equivalent for a given Tango attribute value 
     It returns a Background,Foreground tuple
     """
-    print 'In getColorsForValue(%s)'%value
+    print(('In getColorsForValue(%s)'%value))
     if value is None:
         return Qt.QColor(Qt.Qt.gray),Qt.QColor(Qt.Qt.black)
     elif hasattr(value,'value'): #isinstance(value,PyTango.DeviceAttribute):
@@ -548,7 +548,7 @@ class TauColorComponent(TaurusBaseComponent):
     #-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
     
     def setModel(self,model):
-        print '#'*80
+        print(('#'*80))
         self.info('In %s.setModel(%s)'%(type(self).__name__,model))
         model = str(model)
         self.__name = model
@@ -637,7 +637,7 @@ class NullWidget(TaurusWidget):
         self.hide()
 
     def Input(self,value):
-        print 'In NullWidget.setInput(%s)'%value
+        print(('In NullWidget.setInput(%s)'%value))
         self.emit(Qt.SIGNAL('Output'), value or 'sys/database/2')
 
 import threading
@@ -686,7 +686,7 @@ class ModelRefresher(threading.Thread,fandango.objects.SingletonMap):
             if ts.getModelObj():
               targets.append(ts)
       except:
-        print w,w.getModel()
+        print((w,w.getModel()))
         traceback.print_exc()
     self.targets = targets
     return targets
@@ -697,7 +697,7 @@ class ModelRefresher(threading.Thread,fandango.objects.SingletonMap):
       try:
         ts.fireEvent(ts,taurus.core.TaurusEventType.Change,ts.getModelValueObj(cache=False))
       except:
-        print ts
+        print(ts)
         traceback.print_exc()
     return
 
@@ -777,7 +777,7 @@ class QWorker(Qt.QThread):
         self._done = 0
         #Moved to the end to prevent segfaults ...
         Qt.QObject.connect(self.emitter, Qt.SIGNAL("doSomething"), self._doSomething)
-        Qt.QObject.connect(self.emitter, Qt.SIGNAL("somethingDone"), self.next)
+        Qt.QObject.connect(self.emitter, Qt.SIGNAL("somethingDone"), self.__next__)
         
     def getQueue(self):
         if self.queue: return self.queue
@@ -811,7 +811,7 @@ class QWorker(Qt.QThread):
         if len(args)==1 and isSequence(args[0]): args = args[0]
         self.getQueue().put(args)
                 
-    def next(self):
+    def __next__(self):
         queue = self.getQueue()
         (queue.empty() and self.log.info or self.log.debug)('At TauEmitterThread.next(), %d items remaining.' % queue.qsize())
         try:
@@ -828,7 +828,7 @@ class QWorker(Qt.QThread):
                     Qt.QApplication.instance().restoreOverrideCursor()
                     self._cursor = False        
                 
-        except Queue.Empty,e:
+        except Queue.Empty as e:
             self.log.warning(traceback.format_exc())
             pass
         except: 
@@ -837,9 +837,9 @@ class QWorker(Qt.QThread):
         
     def run(self):
         Qt.QApplication.instance().thread().wait(self.sleep)
-        print '#'*80
+        print(('#'*80))
         self.log.info('At TauEmitterThread.run()')
-        self.next()
+        next(self)
         while True:
             item = self.todo.get(True)
             if isString(item):
@@ -1039,7 +1039,7 @@ def Draggable(QtKlass):
             '''reimplemented to provide drag events'''
             #QtKlass.mousePressEvent(self, event)
             QtKlass.mousePressEvent(self,event)
-            print 'In Draggable(%s).mousePressEvent'%type(self)
+            print(('In Draggable(%s).mousePressEvent'%type(self)))
             if event.button() == Qt.Qt.LeftButton: self.dragStartPosition = event.pos()
                 
         def mouseMoveEvent(self, event):
@@ -1099,7 +1099,7 @@ def MenuContexted(QtKlass):
         def onContextMenu(self, point=None):
             try:
                 self._contextmenu = Qt.QMenu()
-                for k,v in self._actions.items():
+                for k,v in list(self._actions.items()):
                   self._contextmenu.addAction(Qt.QIcon(),k,v)
                 if point:
                     self._contextmenu.exec_(self.mapToGlobal(point))
@@ -1137,7 +1137,7 @@ class QOptionChooser(Qt.QDialog):
 
     def launch(self):
         cmd = ' '.join(map(str,[self.command[0],self.combo.currentText()]+self.command[1:]))+' &'
-        print cmd
+        print(cmd)
         import os
         os.system(cmd)
 
@@ -1232,7 +1232,7 @@ class QTextBuffer(Qt.QDialog):
         self._checked = False
         #self._label = Qt.QLabel('Dont popup logs anymore')
         #self._label.setAlignment(Qt.Qt.AlignLeft)
-        map(lcheck.addWidget,(self._cb,)) #self._label))
+        list(map(lcheck.addWidget,(self._cb,))) #self._label))
         lwidget.addLayout(lcheck)
         self.connect(self._cb,Qt.SIGNAL('toggled(bool)'),self.toggle)
         self._savebutton = Qt.QPushButton('Save Logs to File')
@@ -1316,8 +1316,8 @@ class QDropTextEdit(Qt.QTextEdit):
                 TAURUS_MODEL_MIME_TYPE, 'text/plain'])
         except:
             import traceback
-            print traceback.format_exc()
-            print 'Unable to import TAURUS MIME TYPES'
+            print((traceback.format_exc()))
+            print('Unable to import TAURUS MIME TYPES')
         return self.getSupportedMimeTypes()
         
     def getSupportedMimeTypes(self): 
@@ -1329,7 +1329,7 @@ class QDropTextEdit(Qt.QTextEdit):
     #In this method is where dropped data is checked
     def dropEvent(self, event):
         '''reimplemented to support dropping of modelnames in forms'''
-        print('dropEvent(%s): %s,%s'%(event,event.mimeData(),event.mimeData().formats()))
+        print(('dropEvent(%s): %s,%s'%(event,event.mimeData(),event.mimeData().formats())))
         if event.source() is self:
             print('Internal drag/drop not allowed')
             return
@@ -1352,11 +1352,11 @@ class QDropTextEdit(Qt.QTextEdit):
         :return: (str or None) returns the MimeType used if the model was
                  successfully set, or None if the model could not be set
         '''
-        print('QDropTextEdit.handleMimeData(%s,%s)'%(mimeData,method))
+        print(('QDropTextEdit.handleMimeData(%s,%s)'%(mimeData,method)))
         supported = self.mimeTypes()
-        print map(str,supported)
+        print((list(map(str,supported))))
         formats = mimeData.formats()
-        print map(str,formats)
+        print((list(map(str,formats))))
         for mtype in supported:
             if mtype in formats:
                 d = str(mimeData.data(mtype))
@@ -1366,7 +1366,7 @@ class QDropTextEdit(Qt.QTextEdit):
                     method(d)
                     return mtype
                 except:
-                    print('Invalid data (%s) for MIMETYPE=%s'%(repr(d), repr(mtype)))
+                    print(('Invalid data (%s) for MIMETYPE=%s'%(repr(d), repr(mtype))))
                     #self.traceback(taurus.Debug)
                     return None
 
@@ -1380,7 +1380,7 @@ class QGridTable(Qt.QFrame):#Qt.QFrame):
         self.setLayout(Qt.QGridLayout())
         self._widgets = []
     def setHorizontalHeaderLabels(self,labels):
-        print 'QGridTable.setHorizontalHeaderLabels(%s)'%labels
+        print(('QGridTable.setHorizontalHeaderLabels(%s)'%labels))
         for i,l in enumerate(labels):
             ql = Qt.QLabel(l)
             f = ql.font()
@@ -1390,7 +1390,7 @@ class QGridTable(Qt.QFrame):#Qt.QFrame):
             self.setCellWidget(0,i,ql)
             if ql not in self._widgets: self._widgets.append(ql)
     def setVerticalHeaderLabels(self,labels):
-        print 'QGridTable.setVerticalHeaderLabels(%s)'%labels
+        print(('QGridTable.setVerticalHeaderLabels(%s)'%labels))
         for i,l in enumerate(labels):
             ql = Qt.QLabel(l)
             f = ql.font()
@@ -1486,12 +1486,12 @@ class QDictToolBar(Qt.QToolBar):
     def set_toolbar(self,toolbar):
         """ The toolbar argument must be dictionary {name:(icon,action)} or a list of ('Name','icon.jpg',action) tuples.
         """        
-        if hasattr(toolbar,'items'): toolbar = [(k,v[0],v[1]) for k,v in toolbar.items()]
+        if hasattr(toolbar,'items'): toolbar = [(k,v[0],v[1]) for k,v in list(toolbar.items())]
         for name,icon,action in toolbar:
-            print 'Adding action to toolbar: %s,%s,%s'%(name,icon,action)
+            print(('Adding action to toolbar: %s,%s,%s'%(name,icon,action)))
             if isSequence(action):
                 #Building a sub menu
-                print '\tAdding SubMenu: %s'%action
+                print(('\tAdding SubMenu: %s'%action))
                 qaction = Qt.QPushButton(name)
                 qaction.setLayout(Qt.QVBoxLayout())
                 if icon: 
@@ -1507,13 +1507,13 @@ class QDictToolBar(Qt.QToolBar):
             else:
                 self.addSeparator()
         self.setObjectName("ToolBar")
-        print 'Out of set_toolbar()'
+        print('Out of set_toolbar()')
         return self
     def add_to_main_window(self,MainWindow,where=Qt.Qt.TopToolBarArea):
         try: MainWindow.addToolBar(where,self)
         except: 
-            print('Unable to add toolbar to MainWindow(%s)'%MainWindow)
-            print traceback.format_exc()
+            print(('Unable to add toolbar to MainWindow(%s)'%MainWindow))
+            print((traceback.format_exc()))
             
 class QDictTextBrowser(Qt.QWidget):
 
@@ -1534,7 +1534,7 @@ class QDictTextBrowser(Qt.QWidget):
           self.top.connect(self.top,Qt.SIGNAL('itemClicked(item)'),self.updateText)
         self.bottom = Qt.QTextBrowser()
         self.setLayout(Qt.QVBoxLayout())
-        map(self.layout().addWidget,(self.top,self.bottom))
+        list(map(self.layout().addWidget,(self.top,self.bottom)))
         
     def setModel(self,model):
         self.model = model
@@ -1632,7 +1632,7 @@ class QTableOnWidget(Qt.QWidget):
             self.top = Qt.QWidget()
             self.top.setLayout(Qt.QHBoxLayout())
             self.bar,self.button = Qt.QLineEdit(),Qt.QPushButton('Filter!')
-            map(self.top.layout().addWidget,(self.bar,self.button))
+            list(map(self.top.layout().addWidget,(self.bar,self.button)))
             self.button.connect(self.button,Qt.SIGNAL('clicked()'),self.setFiltered)
             self.layout().addWidget(self.top)
         self.table = Qt.QTableWidget(self)
@@ -1699,12 +1699,12 @@ class QEvaluator(Qt.QWidget):
 
     def __init__(self,parent=None,model='',filename='~/.qeval_history'): #'import fandango'):
         import fandango.web, fandango.functional
-        print('%s()'%type(self).__name__)
+        print(('%s()'%type(self).__name__))
         Qt.QWidget.__init__(self,parent)
         try:
             self.name = type(self).__name__
             self._locals = {'self':self,'load':self.setModel,'printf':self.printf,'Qt':Qt}
-            self._locals.update([(k,v) for k,v in fandango.functional.__dict__.items() if isCallable(v)])
+            self._locals.update([(k,v) for k,v in list(fandango.functional.__dict__.items()) if isCallable(v)])
             self._locals['mdir'] = self.dir_module
             self._locals['help'] = self.help
             self._locals['doc'] = lambda x:x.__doc__
@@ -1738,7 +1738,7 @@ class QEvaluator(Qt.QWidget):
     def dir_module(self,*args):
         f = fandango.first((a for a in args if isString(a)),'*')
         if '*' not in f and not f.startswith('_'): f = '*%s*'%f
-        ks = fandango.first((dir(a) for a in args if not isString(a)),self._locals.keys())
+        ks = fandango.first((dir(a) for a in args if not isString(a)),list(self._locals.keys()))
         return sorted((t for t in fandango.matchAll(f,ks) if f.startswith('_') or not t.startswith('__')),key=str.lower)
     
     def help(self,m=None):
@@ -1758,7 +1758,7 @@ class QEvaluator(Qt.QWidget):
         setModel(obj) will set the last element of a sequence of commands as Model for the shell
         The Model can be either an object, class, module, ...
         """
-        print 'QEvaluator.setModel(%s)'%model
+        print(('QEvaluator.setModel(%s)'%model))
         try:
             if model:
                 if isString(model):
@@ -1840,7 +1840,7 @@ class QEvaluator(Qt.QWidget):
         if not hasattr(self,'mlqd'):
             self.mlqd = Qt.QDialog(self)
             self.mlqd.setWindowTitle('Editor'),self.mlqd.setLayout(Qt.QVBoxLayout())
-            map(self.mlqd.layout().addWidget,(self.mlload,self.mledit,self.mlex))
+            list(map(self.mlqd.layout().addWidget,(self.mlload,self.mledit,self.mlex)))
         self.mlqd.show()
     def multiline_exec(self):
         [self.execute(l.strip(),'') for l in str(self.mledit.toPlainText()).split('\n')]
@@ -1853,7 +1853,7 @@ class QEvaluator(Qt.QWidget):
         """
         if not cmd and not args:
             cmd,args = str(self.combo.currentText()),str(self.args.currentText()) #text())
-        print('execute: %s(%s)'%(cmd,args))
+        print(('execute: %s(%s)'%(cmd,args)))
         if self.filename:
             try: open(self.filename,'a').write('%s.%s(%s)\n'%(self.model,cmd,args))
             except: pass
@@ -1861,7 +1861,7 @@ class QEvaluator(Qt.QWidget):
             q = cmd if cmd not in self.commands else 'self.target.%s'%(cmd)
             o = self._eval(q)
             if fandango.isCallable(o) and args:
-                print '%s(%s)'%(o,args)
+                print(('%s(%s)'%(o,args)))
                 self._locals['_ftmp'] = o
                 o = self._eval('_ftmp(%s)'%(args))
                 self.history.append('%s(%s)'%(o,args))
@@ -1870,7 +1870,7 @@ class QEvaluator(Qt.QWidget):
         except:
             o = traceback.format_exc()
             print(o)
-        txt = '\n'.join(map(str,o.items()) if hasattr(o,'items') else ([(str(t).strip('\n\r ') or getattr(t,'__name__','?')) for t in o] if isSequence(o) else [str(o)]))
+        txt = '\n'.join(list(map(str,list(o.items()))) if hasattr(o,'items') else ([(str(t).strip('\n\r ') or getattr(t,'__name__','?')) for t in o] if isSequence(o) else [str(o)]))
         isHtml = txt.strip().startswith('<') and txt.strip().endswith('>') and '</' in txt
         txt = ('execute: %s(%s) => '%(cmd,args))+type(o).__name__+':\n'+'-'*80+'\n' + txt
         self.printf(txt,append=self.check.isChecked(),highlight=not isHtml)
@@ -1908,12 +1908,12 @@ class QEvaluator(Qt.QWidget):
     @staticmethod
     def main(args=None):
         qapp = getApplication()
-        print(len(args),args)
+        print((len(args),args))
         args = notNone(args,sys.argv[1:])
         if args and os.path.isfile(args[0]):
-          args = filter(bool,map(str.strip,open(args[0]).readlines()))
+          args = list(filter(bool,list(map(str.strip,open(args[0]).readlines()))))
         kw = args and {'model':';'.join(args)} or {}
-        print('model',kw.get('model'))
+        print(('model',kw.get('model')))
         w = QEvaluator(**kw)
         w.show()
         qapp.exec_()        

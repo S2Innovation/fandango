@@ -227,23 +227,23 @@ class FolderDS(DynamicDS): #PyTango.Device_4Impl):
 #    Device destructor
 #------------------------------------------------------------------
     def delete_device(self):
-        print("[Device delete_device method] for device",self.get_name())
+        print(("[Device delete_device method] for device",self.get_name()))
 
 
 #------------------------------------------------------------------
 #    Device initialization
 #------------------------------------------------------------------
     def init_device(self):
-        print("In ", self.get_name(), "::init_device()")
+        print(("In ", self.get_name(), "::init_device()"))
         DynamicDS.init_device(self)
         if self.DynamicStates: self.set_state(PyTango.DevState.UNKNOWN)
-        print("Out of ", self.get_name(), "::init_device()")
+        print(("Out of ", self.get_name(), "::init_device()"))
 
 #------------------------------------------------------------------
 #    Always excuted hook method
 #------------------------------------------------------------------
     def always_executed_hook(self):
-        print("In "+self.get_name()+ "::always_excuted_hook()")
+        print(("In "+self.get_name()+ "::always_excuted_hook()"))
         DynamicDS.always_executed_hook(self)
 
 #==================================================================

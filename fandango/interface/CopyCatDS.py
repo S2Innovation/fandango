@@ -70,7 +70,7 @@ def choose_db(url,default=None):
         return default
     import os
     thost = os.getenv('TANGO_HOST') if ':' not in url else url.split('/')[0]
-    print('TANGO_HOST=%s'%thost)
+    print(('TANGO_HOST=%s'%thost))
     return PyTango.Database(*thost.split(':'))
     
 class Doppelganger(fandango.SingletonMap):
@@ -195,16 +195,16 @@ class CopyCatServer(DynamicServer):
         #fandango.tango.get_device_property failed!     desc = BAD_INV_ORDER CORBA system exception: BAD_INV_ORDER_ORBHasShutdown
         #doppels = dict((d,(db.get_device_property(d,['TargetDevice'])['TargetDevice'] or [''])[0]) for d in self.classes['CopyCatDS'])
         ks = [k for k in self.classes if fandango.matchCl('CopyCatDS|(^*Copy$)',k)]
-        print('classes: %s'%ks)
+        print(('classes: %s'%ks))
         doppels = sorted(set(t for k in ks for t in self.classes[k]))
-        print('copycat devices: %s'%doppels)
+        print(('copycat devices: %s'%doppels))
         targets = dict((d,fandango.tango.get_device_property(d,'TargetDevice')) for d in doppels)
         classes = {}
-        print('targets: %s'%targets)
+        print(('targets: %s'%targets))
         if class_override:
             for t in set(targets.values()):
                 if t: classes[t] = choose_db(t,self.db).get_class_for_device(t if ':' not in t else t.split('/',1)[-1])
-            print('Devices: \n%s'%"\n".join(sorted('%s = %s(%s)'%(d,t,classes.get(t,None)) for d,t in list(targets.items()))))
+            print(('Devices: \n%s'%"\n".join(sorted('%s = %s(%s)'%(d,t,classes.get(t,None)) for d,t in list(targets.items())))))
         if class_override and classes:
             for c in set(classes.values()):
                 print(('Adding %s_Copy ...'%c))

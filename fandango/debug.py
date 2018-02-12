@@ -36,12 +36,13 @@
 import traceback
 import threading
 import time
+import collections
 
 def timeit(target,args=[],kwargs={},setup='pass',number=1):
   if isinstance(target,str):
     import timeit
     return timeit.timeit(target,setup,number=number)
-  elif callable(target):
+  elif isinstance(target, collections.Callable):
     t0 = time.time()
     try:
       [target(*args) for i in range(number)]
@@ -70,8 +71,8 @@ def test_xtreme(device,attribute,value):
             dp.read_attribute(attribute)
             threading.Event().wait(0.01)
     except:
-        print('%s.read_attribute(%s) failed after %d retries' % (device,attribute,i))
-        print(traceback.format_exc())
+        print(('%s.read_attribute(%s) failed after %d retries' % (device,attribute,i)))
+        print((traceback.format_exc()))
         PyTango.DeviceProxy(dp.adm_name()).command_inout('kill')
     return
        

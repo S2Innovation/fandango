@@ -6,6 +6,6 @@ try:
   from .CopyCatDS import CopyCatDS,CopyCatDSClass,CopyCatServer
 except:
   print('Unable to import fandango.interface.CopyCatDS')
-  print(traceback.format_exc())
+  print((traceback.format_exc()))
 
 

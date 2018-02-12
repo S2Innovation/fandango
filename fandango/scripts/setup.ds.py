@@ -47,7 +47,7 @@ package_dir = {
     DS: '.',
     #'DS/tools': './tools',
 }
-packages = package_dir.keys()
+packages = list(package_dir.keys())
 
 ## Additional files, remember to edit MANIFEST.in to include them in sdist
 package_data = {'': [

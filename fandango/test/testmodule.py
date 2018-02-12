@@ -42,7 +42,7 @@ class TestModule(fn.Object):
     self.tests = tests
     
   def get_module_callables(self,module):
-    print('get_module_callables(%s)'%module)
+    print(('get_module_callables(%s)'%module))
     try:
       m = self.modules[module]
       result = set()
@@ -51,22 +51,22 @@ class TestModule(fn.Object):
         o = o.split('.')[-1]
         if self.is_local(getattr(m,o),module):
           result.add(module+'.'+o)
-    except Exception,e:
-      print('get_module_callables(%s)'%module)
+    except Exception as e:
+      print(('get_module_callables(%s)'%module))
       traceback.print_exc()
       raise e
     return result
   
   def get_all_callables(self,module=None):
     module = module or self.module
-    print 'get_all_callables(%s)'%module
+    print(('get_all_callables(%s)'%module))
     result = set()
     for s in [self.module]+list(self.get_submodules()):
       result = result.union(self.get_module_callables(s))
     return sorted(result)
     
   def get_submodules(self,module=None,nr=0):
-    print('get_submodules(%s)'%module)
+    print(('get_submodules(%s)'%module))
     try:
       module = module or self.module
       if fn.isString(module):
@@ -75,7 +75,7 @@ class TestModule(fn.Object):
         m,module = module,module.__name__
       result = set()
       l = getattr(m,'__test__',dir(m))
-      print m,l
+      print((m,l))
       l = list(l)
       for o in l:
         o = o.split('.')[-1]
@@ -85,8 +85,8 @@ class TestModule(fn.Object):
           result.add(o)
           if nr<10:
             result = result.union(self.get_submodules(n,nr=nr+1))
-    except Exception,e:
-      print('get_submodules(%s)'%module)
+    except Exception as e:
+      print(('get_submodules(%s)'%module))
       traceback.print_exc()
       raise e
     return result 
@@ -111,7 +111,7 @@ class TestModule(fn.Object):
 
   @staticmethod
   def load_module(module):
-    print('load_module(%s)'%module)
+    print(('load_module(%s)'%module))
     path = module.replace('.','/')
     obj = imp.load_module(module,*imp.find_module(path))
     return obj
@@ -132,7 +132,7 @@ class TestModule(fn.Object):
       r = obj(*args,**kwargs)
       self.results[obj] = r
       if result is None or r == result:
-        print("test_object('%s : %s == %s')"%(obj,r,result))
+        print(("test_object('%s : %s == %s')"%(obj,r,result)))
         return r or True
     except:
       traceback.print_exc()
@@ -142,7 +142,7 @@ class TestModule(fn.Object):
     """
     Tests would be a list of (name,result,args,kwargs) values
     """
-    print('test(',tests,')')
+    print(('test(',tests,')'))
     try:
       tests = tests or self.tests
       if not fn.isSequence(tests): tests = [tests]
@@ -152,10 +152,10 @@ class TestModule(fn.Object):
           [k]+list(t if not isMapping(t) else 
             (t.get('result',None),t.get('args',[]),t.get('kwargs',[]))
             )
-          for k,t in tests.items()]
+          for k,t in list(tests.items())]
       for t in tests:
         t = fn.toList(t)
-        print t
+        print(t)
         t[0] = t[0]
         t[1] = (t[1:] or [None])[0]
         t[2] = (t[2:] or [[]])[0]
@@ -164,12 +164,12 @@ class TestModule(fn.Object):
         if v: passed += 1
         self.results[t[0]] = v
         
-      print('-'*80)
+      print(('-'*80))
       for t in tests:
         v = self.results[fn.toList(t)[0]]
-        print('%s testing: %s : %s' % (self.module,t,['Failed','Ok'][bool(v)]))
+        print(('%s testing: %s : %s' % (self.module,t,['Failed','Ok'][bool(v)])))
         
-      print('%s : %d / %d tests passed'%(self.module,passed,len(tests)))
+      print(('%s : %d / %d tests passed'%(self.module,passed,len(tests))))
     except:
       traceback.print_exc()
       print(tests)
@@ -179,8 +179,8 @@ class TestModule(fn.Object):
     module = module or self.module
     ms = self.get_submodules()
     cs = self.get_all_callables(module)
-    print '%d submodules'%len(ms)
-    print '%d callables'%len(cs)
+    print(('%d submodules'%len(ms)))
+    print(('%d callables'%len(cs)))
     self.test(list(ms)+list(cs))
     
 class TestModuleSet(TestModule):

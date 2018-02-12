@@ -238,7 +238,7 @@ def maxdiff(*args):
 def notnone(*args):
     seq,ref = args[0],fun.first(args[1:] or [0])
     method = fun.first(args[2:] or [average])
-    print('notnone from %s'%ref)
+    print(('notnone from %s'%ref))
     try:
       if np: 
           return method(*((v for v in seq if v is not None 
@@ -406,7 +406,7 @@ def filter_array(data,window=300,method=average,begin=0,end=0,filling=F_LAST,
         else:
             j = next((j for j,v in enumerate(data) if v[0]>end))
             post,data = data[j],data[:j]
-    if trace: print('prev,post: %s,%s'%(prev,post))
+    if trace: print(('prev,post: %s,%s'%(prev,post)))
     
     if not data:
         if prev or post:
@@ -421,7 +421,7 @@ def filter_array(data,window=300,method=average,begin=0,end=0,filling=F_LAST,
         nx =  prev and prev[1] or data[0][1]
         ndata = [(tt+window,nx) for tt in range(tfloor(begin),
                                                 tfloor(data[0][0]),window)]
-        if trace: print('prev: %s'%str(ndata and ndata[-1]))
+        if trace: print(('prev: %s'%str(ndata and ndata[-1])))
     else: 
         ndata =[]
     
@@ -430,7 +430,7 @@ def filter_array(data,window=300,method=average,begin=0,end=0,filling=F_LAST,
     i,i0 = 0,0
     next = []
     ilast = len(data)-1
-    if trace: print('t0: %s' % (window+tfloor(data[0][0]-1)))
+    if trace: print(('t0: %s' % (window+tfloor(data[0][0]-1))))
     try:
         for t in range(window+tfloor(data[0][0]-1),
                        1+window+tfloor(max((end,data[-1][0]))),window):
@@ -463,9 +463,9 @@ def filter_array(data,window=300,method=average,begin=0,end=0,filling=F_LAST,
                 ndata.append((t,nx))
                 #print 'post: %s'%str(ndata[-1])
     except Exception as e:
-        print(i0,'-',i,'/',ilast,':',filling,':',data[i0:i])
-        print(ndata and ndata[-1]) 
-        print(ndata and ndata[-1] and ndata[-1][-1])
+        print((i0,'-',i,'/',ilast,':',filling,':',data[i0:i]))
+        print((ndata and ndata[-1])) 
+        print((ndata and ndata[-1] and ndata[-1][-1]))
         raise Exception(traceback.format_exc())
     return ndata
     
@@ -1066,7 +1066,7 @@ class CSVArray(object):
                 #readed = csv.reader(fl, delimiter='\t')
                 
         except Exception as e:
-            print('Exception while reading %s: %s' % (filename,str(e)))
+            print(('Exception while reading %s: %s' % (filename,str(e))))
         finally:
             try: fl.close()
             except: pass
@@ -1230,16 +1230,16 @@ class CSVArray(object):
         ##Getting row/column/cell using 'axxis is None' as a degree of freedom
         if y is None: #Returning a row
             x = x or 0
-            if self.trace: print('Getting the row ',x)
+            if self.trace: print(('Getting the row ',x))
             result = self.rows[self.xoffset+x][self.yoffset:]
         elif x is None: #Returning a column
-            if self.trace: print('Getting the column ',y)
+            if self.trace: print(('Getting the column ',y))
             result = self.cols[self.yoffset+y][self.xoffset:]
         else: #Returning a single Cell
             result = self.rows[self.xoffset+x][self.yoffset+y]
 
-        if self.trace and xsubset: print('using xsubset ',xsubset)
-        if self.trace and ysubset: print('using ysubset ',ysubset)
+        if self.trace and xsubset: print(('using xsubset ',xsubset))
+        if self.trace and ysubset: print(('using ysubset ',ysubset))
         
         if not distinct: 
             #if getting a column and theres an xsubset
@@ -1268,7 +1268,7 @@ class CSVArray(object):
                 values[result[i]]=[i]
             else:
                 values[result[i]].append(i)
-        if self.trace: print('Values are ',values)
+        if self.trace: print(('Values are ',values))
         return values
     
     def getd(self,row):
@@ -1443,7 +1443,7 @@ class CSVArray(object):
                 
     def printArray(self):
         for r in range(len(self.rows)):
-            print(r,':','\t'.join([str(e or '\t') for e in self.rows[r]]))
+            print((r,':','\t'.join([str(e or '\t') for e in self.rows[r]])))
     
     pass #END OF CSVARRAY
 

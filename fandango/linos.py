@@ -77,7 +77,7 @@ def shell_command(*commands, **keywords):
     
 def sendmail(subject,text,receivers,sender='',attachments=None,trace=False):
     # method for sending mails
-    if trace: print('Sending mail to %s'%receivers)
+    if trace: print(('Sending mail to %s'%receivers))
     chars = sorted(set(re.findall('[^a-zA-Z0-9/\ \n\.\=\(\),\[\]_\-]',text)))
     for c in chars:
         if c in text and '\\'+c not in text:
@@ -148,7 +148,7 @@ def get_memory(pid=None,virtual=False):
         mem,units = shell_command('cat /proc/%s/status | grep Vm%s'%(pid,'Size' if virtual else 'RSS')).lower().strip().split()[1:3]
         return int(mem)*(1e3 if 'k' in units else (1e6 if 'm' in units else 1))
     except:
-        print(traceback.format_exc())
+        print((traceback.format_exc()))
         return 0
 
 def get_cpu(pid):
@@ -163,7 +163,7 @@ def get_process_pid(include='',exclude='grep|screen|kwrite'):
     if not ps: 
         return None #raise Exception('No matching process found')
     lines = [s.strip() for s in ps.split('\n')]
-    print('\n'.join(lines))
+    print(('\n'.join(lines)))
     pids = []
     for l in lines:
         for p in l.split():
@@ -186,7 +186,7 @@ def KillEmAll(klass):
     processes = shell_command('ps uax').split('\n')
     processes = [s for s in processes if '%s'%(klass) in s]
     for a in processes:
-        print('Killing %s' % a)
+        print(('Killing %s' % a))
         pid = a.split()[1]
         shell_command('kill -9 %s'%pid)        
         
@@ -240,7 +240,7 @@ def copydir(origin,destination,timewait=0.1,overwrite=False):
     if not file_exists(origin): return
     if not is_dir(origin): return
     fs = listdir(origin)
-    print('%s dir contains %d files' % (origin,len(fs)))
+    print(('%s dir contains %d files' % (origin,len(fs))))
 
     def exec_(com):
         print(com)
@@ -257,7 +257,7 @@ def copydir(origin,destination,timewait=0.1,overwrite=False):
         else:
             #if it was not a directory, we copy it
             if not overwrite and file_exists('%s/%s'%(destination,f)): 
-                print('\t%s/%s already exists'%(destination,f))
+                print(('\t%s/%s already exists'%(destination,f)))
                 continue
             size,t0 = file_size('%s/%s'%(origin,f)),time.time()
             exec_('cp "%s/%s" "%s/"'%(origin,f,destination))
@@ -272,17 +272,17 @@ def diffdir(origin,destination,caseless=False,checksize=True):
     for f in sorted(fs):
         df = '%s/%s'%(origin,f)
         if not (f in nfs) and (not caseless or not f.lower() in lnfs):
-            print('> %s/%s not in %s'%(origin,f,destination))
+            print(('> %s/%s not in %s'%(origin,f,destination)))
             missing.append(df)
         elif is_dir(df):
             missing.extend(diffdir(df,'%s/%s'%(destination,f)))
         elif checksize:
             if file_size(df)!=file_size('%s/%s'%(destination,f)):
-                print('---> %s and %s differs!'%(df,'%s/%s'%(destination,nf)))
+                print(('---> %s and %s differs!'%(df,'%s/%s'%(destination,nf))))
                 missing.append(df)
     for n in sorted(nfs):
         if not (n in fs) and (not caseless or not n.lower() in lfs):
-            print('>> %s/%s not in %s'%(destination,n,origin))
+            print(('>> %s/%s not in %s'%(destination,n,origin)))
     return missing
         
 def findfolders(target='',parent='',filter_=True,printout = False):
@@ -423,7 +423,7 @@ def sysargs_to_dict(args=None,defaults=[],alias={},
     
     '''
     if args is None: args = sys.argv[1:]
-    if trace: print('sysargs_to_dict(%s,%s)'%(args,defaults))
+    if trace: print(('sysargs_to_dict(%s,%s)'%(args,defaults)))
     result,defargs,vargs = {},[],[]
     cast_arg = lambda x: fun.str2type(x,use_eval=True) if cast else x
     is_opt = lambda x: x.startswith('-') or splitter in x
@@ -511,8 +511,8 @@ expand_args_to_str_list = lambda args: expand_args_to_list(args,str)
 if __name__ == '__main__':
     import sys
     #print sysargs_to_dict(defaults=['params'],cast=False,split=True)
-    print(sysargs_to_dict.__name__,'\n',sysargs_to_dict.__doc__)
-    print(sysargs_to_dict(cast=False,split=True))
+    print((sysargs_to_dict.__name__,'\n',sysargs_to_dict.__doc__))
+    print((sysargs_to_dict(cast=False,split=True)))
 
 #from . import doc
 from fandango.doc import get_fn_autodoc

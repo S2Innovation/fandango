@@ -193,7 +193,7 @@ class TServer(Object):
                 result[reply.dev_name()] = reply.get_data()
             return result
         except Exception as e:
-            print('Unable to read all Status from %s: %s' % (self.name,str(e)[:100]+'...'))
+            print(('Unable to read all Status from %s: %s' % (self.name,str(e)[:100]+'...')))
             return result
     
 ####################################################################################################################
@@ -295,7 +295,7 @@ class ServersDict(CaselessDict,Object):
         #classes = self.db.get_device_family('dserver/*')
         #for c in classes:
         #    self.load_by_exec(c)
-        print(self.db)
+        print((self.db))
         self.load_from_servers_list(self.db.get_server_list())
         
     def load_by_name(self,name):
@@ -358,7 +358,7 @@ class ServersDict(CaselessDict,Object):
                 self[s] = ss
             except Exception as e:
                 self.log.warning('exception loading %s server: %s' % (s,str(e)[:100]+'...'))
-                print(traceback.format_exc())
+                print((traceback.format_exc()))
         self.log.debug('load_from_servers_list(%d) took %f seconds' % (len(servers_list),time.time()-t0))
         return self
                     
@@ -465,7 +465,7 @@ class ServersDict(CaselessDict,Object):
     
     def get_class_servers(self,klass):
         """This method gets the servers related to a Class."""
-        result = [s.name for s in self.values() if klass in s.classes];
+        result = [s.name for s in list(self.values()) if klass in s.classes];
         return result
             
     def get_class_devices(self,klass):
@@ -656,7 +656,7 @@ class ServersDict(CaselessDict,Object):
                     except: pass
                     ct-=1
             except Exception as e:
-                print('Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...'))
+                print(('Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...')))
                 self.log.error('Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...'))
             t1 = time.time()
             if not done:
@@ -765,7 +765,7 @@ class ServersDict(CaselessDict,Object):
         return done        
             
     def kill_os(self,name):
-        print('in kill_os(%s)'%name)
+        print(('in kill_os(%s)'%name))
         if type(name) is not list:
             name = name.split('/')
         import subprocess
@@ -774,21 +774,21 @@ class ServersDict(CaselessDict,Object):
         greps = []
         for n in name:
             command = 'grep -i %s'%n
-            print('command is %s' % command)
+            print(('command is %s' % command))
             greps.append(subprocess.Popen(command,shell=True,stdin=prev.stdout,stdout=subprocess.PIPE))
             prev = greps[-1]
         result = prev.communicate()[0]
         if result:
             proc = result.split('\n')[0] 
-            print('hard_kill: killing %s'%proc)
+            print(('hard_kill: killing %s'%proc))
             pid = proc.split(' ')[0]
             comm = 'kill -9 %s'%pid
-            print('hard_killed: %s' % comm)
+            print(('hard_killed: %s' % comm))
             try:
                 os.system(comm)
                 print('hard_kill: Process killed')
             except Exception as e:
-                print('hard_kill: Unable to kill process, %s' % (str(e)[:100]+'...'))
+                print(('hard_kill: Unable to kill process, %s' % (str(e)[:100]+'...')))
             return True
         else:
             print('hard_kill: Process %s not found, not killed.')
@@ -840,7 +840,7 @@ class ServersDict(CaselessDict,Object):
         host = host.split('.')[0].strip() or 'localhost' if mode else ''
         level = int(level) if level else 0
         dbserver = self.get_db_device()
-        print('ServersDict.set_server_level(%s,%s,%s)'%(server_name,host,level))
+        print(('ServersDict.set_server_level(%s,%s,%s)'%(server_name,host,level)))
         dbserver.DbPutServerInfo([str(s) for s in (server_name,host,mode,level)])
         if server_name in self: self[server_name].update_level(host,level)
         if host: self.get_host_starter(host).UpdateServersInfo()
@@ -860,7 +860,7 @@ class ServersDict(CaselessDict,Object):
             di = PyTango.DbDevInfo()
             di.server,di._class,di.name = server_name,class_name,dev
             self.db.add_device(di)
-            print('added %s.%s.%s to Database' % (di.server,di._class,di.name))
+            print(('added %s.%s.%s to Database' % (di.server,di._class,di.name)))
         return
     ## @}
 Astor = ServersDict
@@ -936,28 +936,28 @@ class ComposersDict(ServersDict):
                 attr = p.split('#',1)[0].split('=')[0].strip()
                 comment = p.split('#',1)[-1] if '#' in p else ''
                 new.append('%s=%s%s'%(attr,formula,'#'+comment if comment and '#' not in formula else ''))
-                print(new[-1])
+                print((new[-1]))
                 found = True
         if not found:
             new.append('%s=%s'%(attr,formula))
-            print(new[-1])
+            print((new[-1]))
             
         if update: 
             self.update_attributes(dev,new)
             try:
                 return self.proxies[dev].read_attribute(attr).value
             except Exception as e:
-                print('Attribute %s:"%s" updated but not readable!'%(dev,attr))
+                print(('Attribute %s:"%s" updated but not readable!'%(dev,attr)))
                 return e
         return False
         
     def update_attributes(self,dev,prop=None):
-        print("update_attributes(%s,%s(%s))"%(dev,type(prop),prop))
+        print(("update_attributes(%s,%s(%s))"%(dev,type(prop),prop)))
         if prop is not None: 
             self.db.put_device_property(dev,{'DynamicAttributes':prop})
         try:
             self.proxies[dev].ping()
-            print('%s.updateDynamicAttributes()'%dev)
+            print(('%s.updateDynamicAttributes()'%dev))
             self.proxies[dev].updateDynamicAttributes()
             return len(self.proxies[dev].get_attribute_list())
         except Exception as e:

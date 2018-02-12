@@ -1,0 +1,433 @@
+--- ./fandango/test/test.py	(original)
++++ ./fandango/test/test.py	(refactored)
+@@ -8,13 +8,13 @@
+     m = 'fandango.__all__'
+     print('Loading fandango ...')
+     import fandango
+-    print('ReleaseNumber = %s'%str(fandango.RELEASE))
++    print(('ReleaseNumber = %s'%str(fandango.RELEASE)))
+     from fandango import *
+     import fandango.functional as fun
+-    print('\n\n'+m+': OK')
++    print(('\n\n'+m+': OK'))
+ except Exception as e:
+     traceback.print_exc()
+-    print(m+': KO!')
++    print((m+': KO!'))
+     sys.exit(1)
+ 
+ #Testing fandango.$module passed as argument
+@@ -32,11 +32,11 @@
+     assert 1 is fun.first((i for i in range(1,3)))
+     assert 2 is fun.last((i for i in range(1,3)))
+     assert 0 is fun.last([],default=0)
+-    print(m+': OK')
++    print((m+': OK'))
+ except Skip:pass
+ except Exception as e: 
+     traceback.print_exc()
+-    print(m+': KO!')
++    print((m+': KO!'))
+     sys.exit(1)
+     
+ try:
+@@ -45,11 +45,11 @@
+     import fandango.excepts as f_excepts
+     assert 1 == f_excepts.trial(lambda:1/1,lambda e:10,return_exception=True)
+     assert 10 == f_excepts.trial(lambda:1/0,lambda e:10,return_exception=True)
+-    print(m+': OK')
++    print((m+': OK'))
+ except Skip:pass
+ except Exception as e: 
+     traceback.print_exc()
+-    print(m+': KO!')
++    print((m+': KO!'))
+     sys.exit(1)
+     
+ try:
+@@ -64,11 +64,11 @@
+     assert f_tango.get_device_info('sys/database/2').dev_class == 'DataBase'
+     assert fandango.isNaN(f_tango.TangoEval(trace=False).eval('da/do/di/du',_raise=fandango.NaN))
+     assert fandango.tango.TangoEval(trace=False).eval('sys/database/2',_raise=None) in (0,None)
+-    print(m+': OK')
++    print((m+': OK'))
+ except Skip:pass
+ except Exception as e: 
+     traceback.print_exc()
+-    print(m+': KO!')
++    print((m+': KO!'))
+     sys.exit(1)
+     
+ sys.exit(0)
+--- ./fandango/test/testmodule.py	(original)
++++ ./fandango/test/testmodule.py	(refactored)
+@@ -59,7 +59,7 @@
+   
+   def get_all_callables(self,module=None):
+     module = module or self.module
+-    print('get_all_callables(%s)'%module)
++    print(('get_all_callables(%s)'%module))
+     result = set()
+     for s in [self.module]+list(self.get_submodules()):
+       result = result.union(self.get_module_callables(s))
+@@ -75,7 +75,7 @@
+         m,module = module,module.__name__
+       result = set()
+       l = getattr(m,'__test__',dir(m))
+-      print(m,l)
++      print((m,l))
+       l = list(l)
+       for o in l:
+         o = o.split('.')[-1]
+@@ -179,8 +179,8 @@
+     module = module or self.module
+     ms = self.get_submodules()
+     cs = self.get_all_callables(module)
+-    print('%d submodules'%len(ms))
+-    print('%d callables'%len(cs))
++    print(('%d submodules'%len(ms)))
++    print(('%d callables'%len(cs)))
+     self.test(list(ms)+list(cs))
+     
+ class TestModuleSet(TestModule):
+--- ./fandango/qt.py	(original)
++++ ./fandango/qt.py	(refactored)
+@@ -79,7 +79,7 @@
+     from taurus.qt.qtgui.display import TaurusStateLed
+     led = TaurusStateLed()
+     led.setModel(model)
+-    print('In TaurusStateLed.setModel(%s)'%model)
++    print(('In TaurusStateLed.setModel(%s)'%model))
+     return led
+ 
+ def checkApplication(args=None):
+@@ -216,7 +216,7 @@
+         if not self.message or len(args)<2:
+             self.message+=traceback.format_exc()
+         self.qmb = Qt.QMessageBox(Qt.QMessageBox.Warning,"Exception","The following exception occurred:\n\n%s"%self.message,Qt.QMessageBox.Ok)
+-        print('fandango.qt.QExceptionMessage(%s)'%self.message)
++        print(('fandango.qt.QExceptionMessage(%s)'%self.message))
+         self.qmb.exec_()
+ 
+ class QColorDictionary(SortedDict,Singleton):
+@@ -342,8 +342,8 @@
+         self.emit(Qt.SIGNAL("currentChanged(int)"),self.stackWidget.currentIndex())
+ 
+     def addTab(self,widget,label,icon=None,width=50,height=60):
+-        print('-'*80)
+-        print('Adding %s tab to QCustomTabWidget(%d)'%(label,self.count()))
++        print(('-'*80))
++        print(('Adding %s tab to QCustomTabWidget(%d)'%(label,self.count())))
+         if label in self.buttons: 
+             print(('======> Button(%s) already exists!,\n\t %s rejected!!'%(label,widget)))
+         else:
+@@ -351,7 +351,7 @@
+                 try: icon = self.icon_builder(label)
+                 except: 
+                     print('Unable to get icon widget')
+-                    print(traceback.format_exc())
++                    print((traceback.format_exc()))
+             button = QCustomPushButton(label,icon,parent=self.buttonFrame)
+             button.setCheckable(True)
+             self.buttons[label] = button
+@@ -378,7 +378,7 @@
+             self.removeTab(0)
+         
+     def setCurrentIndex(self,index): 
+-        print('In QCustomTabWidget.setCurrentIndex(%s)'%index)
++        print(('In QCustomTabWidget.setCurrentIndex(%s)'%index))
+         button = self.buttonGroup.buttons()[index]
+         if not button.check(): button.setChecked(True)
+         return self.stackWidget.setCurrentIndex()
+@@ -481,7 +481,7 @@
+ 
+ class TauFakeEventReceiver():
+     def event_received(self,source,type_,value):
+-        print('%s: Event from %s: %s(%s)'% (time.ctime(),source,type_,shortstr(getattr(value,'value',value))))
++        print(('%s: Event from %s: %s(%s)'% (time.ctime(),source,type_,shortstr(getattr(value,'value',value)))))
+         
+ class TaurusImportException(Exception):
+     pass
+@@ -504,7 +504,7 @@
+     Get QColor equivalent for a given Tango attribute value 
+     It returns a Background,Foreground tuple
+     """
+-    print('In getColorsForValue(%s)'%value)
++    print(('In getColorsForValue(%s)'%value))
+     if value is None:
+         return Qt.QColor(Qt.Qt.gray),Qt.QColor(Qt.Qt.black)
+     elif hasattr(value,'value'): #isinstance(value,PyTango.DeviceAttribute):
+@@ -548,7 +548,7 @@
+     #-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
+     
+     def setModel(self,model):
+-        print('#'*80)
++        print(('#'*80))
+         self.info('In %s.setModel(%s)'%(type(self).__name__,model))
+         model = str(model)
+         self.__name = model
+@@ -637,7 +637,7 @@
+         self.hide()
+ 
+     def Input(self,value):
+-        print('In NullWidget.setInput(%s)'%value)
++        print(('In NullWidget.setInput(%s)'%value))
+         self.emit(Qt.SIGNAL('Output'), value or 'sys/database/2')
+ 
+ import threading
+@@ -686,7 +686,7 @@
+             if ts.getModelObj():
+               targets.append(ts)
+       except:
+-        print(w,w.getModel())
++        print((w,w.getModel()))
+         traceback.print_exc()
+     self.targets = targets
+     return targets
+@@ -837,7 +837,7 @@
+         
+     def run(self):
+         Qt.QApplication.instance().thread().wait(self.sleep)
+-        print('#'*80)
++        print(('#'*80))
+         self.log.info('At TauEmitterThread.run()')
+         next(self)
+         while True:
+@@ -1039,7 +1039,7 @@
+             '''reimplemented to provide drag events'''
+             #QtKlass.mousePressEvent(self, event)
+             QtKlass.mousePressEvent(self,event)
+-            print('In Draggable(%s).mousePressEvent'%type(self))
++            print(('In Draggable(%s).mousePressEvent'%type(self)))
+             if event.button() == Qt.Qt.LeftButton: self.dragStartPosition = event.pos()
+                 
+         def mouseMoveEvent(self, event):
+@@ -1316,7 +1316,7 @@
+                 TAURUS_MODEL_MIME_TYPE, 'text/plain'])
+         except:
+             import traceback
+-            print(traceback.format_exc())
++            print((traceback.format_exc()))
+             print('Unable to import TAURUS MIME TYPES')
+         return self.getSupportedMimeTypes()
+         
+@@ -1354,9 +1354,9 @@
+         '''
+         print(('QDropTextEdit.handleMimeData(%s,%s)'%(mimeData,method)))
+         supported = self.mimeTypes()
+-        print(list(map(str,supported)))
++        print((list(map(str,supported))))
+         formats = mimeData.formats()
+-        print(list(map(str,formats)))
++        print((list(map(str,formats))))
+         for mtype in supported:
+             if mtype in formats:
+                 d = str(mimeData.data(mtype))
+@@ -1380,7 +1380,7 @@
+         self.setLayout(Qt.QGridLayout())
+         self._widgets = []
+     def setHorizontalHeaderLabels(self,labels):
+-        print('QGridTable.setHorizontalHeaderLabels(%s)'%labels)
++        print(('QGridTable.setHorizontalHeaderLabels(%s)'%labels))
+         for i,l in enumerate(labels):
+             ql = Qt.QLabel(l)
+             f = ql.font()
+@@ -1390,7 +1390,7 @@
+             self.setCellWidget(0,i,ql)
+             if ql not in self._widgets: self._widgets.append(ql)
+     def setVerticalHeaderLabels(self,labels):
+-        print('QGridTable.setVerticalHeaderLabels(%s)'%labels)
++        print(('QGridTable.setVerticalHeaderLabels(%s)'%labels))
+         for i,l in enumerate(labels):
+             ql = Qt.QLabel(l)
+             f = ql.font()
+@@ -1488,10 +1488,10 @@
+         """        
+         if hasattr(toolbar,'items'): toolbar = [(k,v[0],v[1]) for k,v in list(toolbar.items())]
+         for name,icon,action in toolbar:
+-            print('Adding action to toolbar: %s,%s,%s'%(name,icon,action))
++            print(('Adding action to toolbar: %s,%s,%s'%(name,icon,action)))
+             if isSequence(action):
+                 #Building a sub menu
+-                print('\tAdding SubMenu: %s'%action)
++                print(('\tAdding SubMenu: %s'%action))
+                 qaction = Qt.QPushButton(name)
+                 qaction.setLayout(Qt.QVBoxLayout())
+                 if icon: 
+@@ -1513,7 +1513,7 @@
+         try: MainWindow.addToolBar(where,self)
+         except: 
+             print(('Unable to add toolbar to MainWindow(%s)'%MainWindow))
+-            print(traceback.format_exc())
++            print((traceback.format_exc()))
+             
+ class QDictTextBrowser(Qt.QWidget):
+ 
+@@ -1758,7 +1758,7 @@
+         setModel(obj) will set the last element of a sequence of commands as Model for the shell
+         The Model can be either an object, class, module, ...
+         """
+-        print('QEvaluator.setModel(%s)'%model)
++        print(('QEvaluator.setModel(%s)'%model))
+         try:
+             if model:
+                 if isString(model):
+@@ -1861,7 +1861,7 @@
+             q = cmd if cmd not in self.commands else 'self.target.%s'%(cmd)
+             o = self._eval(q)
+             if fandango.isCallable(o) and args:
+-                print('%s(%s)'%(o,args))
++                print(('%s(%s)'%(o,args)))
+                 self._locals['_ftmp'] = o
+                 o = self._eval('_ftmp(%s)'%(args))
+                 self.history.append('%s(%s)'%(o,args))
+--- ./fandango/scripts/tango_create_starter.py	(original)
++++ ./fandango/scripts/tango_create_starter.py	(refactored)
+@@ -64,8 +64,8 @@
+   """
+ 
+   for dname in ['tango/admin/'+h.split('.')[0] for h in hostnames]:
+-   print('Initial values for properties of ',dname,' are ', \
+-     db.get_device_property(dname,['StartDsPath','WaitForDriverStartup','UseEvents','StartServersAtStartup','InterStartupLevelWait','ServerStartupTimeout']))
++   print(('Initial values for properties of ',dname,' are ', \
++     db.get_device_property(dname,['StartDsPath','WaitForDriverStartup','UseEvents','StartServersAtStartup','InterStartupLevelWait','ServerStartupTimeout'])))
+    db.put_device_property(dname,{'StartDsPath':[
+                   '~/devservers',
+                   '~/ds',
+@@ -77,8 +77,8 @@
+    db.put_device_property(dname,{'StartServersAtStartup':['True']})
+    db.put_device_property(dname,{'InterStartupLevelWait':[30]})
+    #db.put_device_property(dname,{'ServerStartupTimeout':[60]})
+-   print('Final values for properties of ',dname,' are ', \
+-     db.get_device_property(dname,['StartDsPath','WaitForDriverStartup','UseEvents','StartServersAtStartup','InterStartupLevelWait','ServerStartupTimeout']))
++   print(('Final values for properties of ',dname,' are ', \
++     db.get_device_property(dname,['StartDsPath','WaitForDriverStartup','UseEvents','StartServersAtStartup','InterStartupLevelWait','ServerStartupTimeout'])))
+           
+  
+ if __name__ == '__main__':
+--- ./fandango/scripts/tango_create_device.py	(original)
++++ ./fandango/scripts/tango_create_device.py	(refactored)
+@@ -37,19 +37,19 @@
+   domain = 'sim'
+   family = 'pysignalsimulator'
+ 
+-  print('Creating ',str(rateDS*nDS) , ' TangoTest device Servers ...')
++  print(('Creating ',str(rateDS*nDS) , ' TangoTest device Servers ...'))
+   for m in range(first,nDS+first):
+           server = '/'.join([_class,'%02d'%m])
+-          print('Deleting server ',server)
++          print(('Deleting server ',server))
+           try: db.delete_server(server)
+           except: pass
+           for n in range(1,rateDS+1):
+                   server = '/'.join([_class,'%02d'%m])
+                   member = '%02d'%m+'-'+'%02d'%n
+                   device = '/'.join([domain,family,member])
+-                  print('Creating device ',device)
++                  print(('Creating device ',device))
+                   addTangoDev(server,_class,device)
+-                  print('Adding Properties to class/device = ',_class,'/',device)
++                  print(('Adding Properties to class/device = ',_class,'/',device))
+                   db.put_class_property(_class,{'Description':['device used to test the archiving system']})
+                   db.put_device_property(device,{'SimAttributes':['A1=sin((t+random())/2.)']})
+                   db.put_device_property(device,{'SimStates':['FAULT=square(t,period=10)',"ALARM=Attr('A1')<0",'ON=1']})
+--- ./fandango/scripts/servers_lite.py	(original)
++++ ./fandango/scripts/servers_lite.py	(refactored)
+@@ -56,7 +56,7 @@
+     """
+     if not isDictionary(property):
+         property = {property:value}
+-    print(device,property)
++    print((device,property))
+     return get_database().put_device_property(device,property)
+     
+ def get_device_attributes(device):
+@@ -138,7 +138,7 @@
+                 dev = (attrklass if str(dev_name).count('/')==(4 if ':' in dev_name else 3) else devklass)(dev_name)
+             except Exception as e:
+                 print(('ProxiesDict: %s doesnt exist!'%dev_name))
+-                print(traceback.format_exc())
++                print((traceback.format_exc()))
+                 dev = None
+         return dev
+             
+@@ -283,7 +283,7 @@
+                 result[reply.dev_name()] = reply.get_data()
+             return result
+         except Exception as e:
+-            print('Unable to read all Status from %s: %s' % (self.name,str(e)[:100]+'...'))
++            print(('Unable to read all Status from %s: %s' % (self.name,str(e)[:100]+'...')))
+             return result
+     
+ ####################################################################################################################
+@@ -536,7 +536,7 @@
+     
+     def get_class_servers(self,klass):
+         """This method gets the servers related to a Class."""
+-        result = [s.name for s in self.values() if klass in s.classes];
++        result = [s.name for s in list(self.values()) if klass in s.classes];
+         if not result:
+             #Use the Database to get the values
+             #self.log.error('Impossible to retrieve server for class %s'%(klass))
+@@ -728,7 +728,7 @@
+                     except: pass
+                     ct-=1
+             except Exception as e:
+-                print('Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...'))
++                print(('Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...')))
+                 #self.log.error('Exception StartingServer %s: %s'%(s_name,str(e)[:100]+'...'))
+             t1 = time.time()
+             #if not done:
+@@ -841,7 +841,7 @@
+         return done        
+             
+     def kill_os(self,name):
+-        print('in kill_os(%s)'%name)
++        print(('in kill_os(%s)'%name))
+         if type(name) is not list:
+             name = name.split('/')
+         import subprocess
+@@ -850,21 +850,21 @@
+         greps = []
+         for n in name:
+             command = 'grep -i %s'%n
+-            print('command is %s' % command)
++            print(('command is %s' % command))
+             greps.append(subprocess.Popen(command,shell=True,stdin=prev.stdout,stdout=subprocess.PIPE))
+             prev = greps[-1]
+         result = prev.communicate()[0]
+         if result:
+             proc = result.split('\n')[0] 
+-            print('hard_kill: killing %s'%proc)
++            print(('hard_kill: killing %s'%proc))
+             pid = proc.split(' ')[0]
+             comm = 'kill -9 %s'%pid
+-            print('hard_killed: %s' % comm)
++            print(('hard_killed: %s' % comm))
+             try:
+                 os.system(comm)
+                 print('hard_kill: Process killed')
+             except Exception as e:
+-                print('hard_kill: Unable to kill process, %s' % (str(e)[:100]+'...'))
++                print(('hard_kill: Unable to kill process, %s' % (str(e)[:100]+'...')))
+             return True
+         else:
+             print('hard_kill: Process %s not found, not killed.')
+@@ -911,7 +911,7 @@
+         host = host.split('.')[0].strip() or 'localhost' if mode else ''
+         level = int(level) if level else 0
+         dbserver = self.get_db_device()
+-        print('ServersDict.set_server_level(%s,%s,%s)'%(server_name,host,level))
++        print(('ServersDict.set_server_level(%s,%s,%s)'%(server_name,host,level)))
+         dbserver.DbPutServerInfo([str(s) for s in (server_name,host,mode,level)])
+         if server_name in self: self[server_name].update_level(host,level)
+         if host: self.proxies['tango/admin/%s'%host].UpdateServersInfo()
+@@ -931,7 +931,7 @@
+             di = PyTango.DbDevInfo()
+             di.server,di._class,di.name = server_name,class_name,dev
+             self.db.add_device(di)
+-            print('added %s.%s.%s to Database' % (di.server,di._class,di.name))
++            print(('added %s.%s.%s to Database' % (di.server,di._class,di.name)))
+         return
+     ## @}
+ Astor = ServersDict

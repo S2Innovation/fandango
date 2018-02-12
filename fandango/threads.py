@@ -43,8 +43,8 @@ import imp,builtins,pickle,re
 from threading import Event,Lock,RLock,Thread
 
 try:
-    import Queue
-    import Queue as queue
+    import queue
+    import queue as queue
 except:
     import queue
     import queue as Queue

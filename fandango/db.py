@@ -118,7 +118,7 @@ class FriendlyDB(log.Logger):
                 self._cursor = self.db.cursor(self.default_cursor) if klass is None else self.db.cursor(cursorclass=klass)
             return self._cursor
         except:
-            print(traceback.format_exc())
+            print((traceback.format_exc()))
             self.renewMySQLconnection()
             self._recursion += 1
             return self.getCursor(renew=True,klass=klass)

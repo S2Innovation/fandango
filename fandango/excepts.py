@@ -254,10 +254,10 @@ class ExceptionManager(object):
             stack = traceback.format_tb(tb)
             exstring = '\n'.join(stack)
             if self.verbose:
-                print('-'*80)
+                print(('-'*80))
                 self.logger.warning('%s Exception Catched, Tracebacks (most recent call last): %s;\n%s'%(etype.__name__,str(e),exstring))
                 sys.stdout.flush(); sys.stderr.flush()
-                print('-'*80)
+                print(('-'*80))
 
             if self.postmethod: self.postmethod(exstring)
             if etype is DevFailed:

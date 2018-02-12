@@ -116,7 +116,7 @@ def getTangoValue(obj,device=None):
         o.set_quality_flags()
         return o
     except:
-        print(traceback.format_exc())
+        print((traceback.format_exc()))
         return obj
             
     def __repr__(self):

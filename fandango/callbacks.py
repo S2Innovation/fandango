@@ -53,6 +53,7 @@ from .tango import PyTango,EventType,fakeAttributeValue,ProxiesDict
 from .tango import get_full_name,get_attribute_events, check_device_cached
 from .threads import ThreadedObject,Queue,timed_range,wait,threading
 from .log import Logger,printf,tracer
+import collections
 
 """
 @package callbacks
@@ -1398,23 +1399,23 @@ class EventCallback():
             #Pruning tango:$TANGO_HOST and other tags
             attr_name = '/'.join(event.attr_name.split('/')[-4:])
             dev_name = hasattr(event.device,'name') and event.device.name() or event.device
-            print("in EventCallback.push_event(",dev_name,": ",attr_name,")")
+            print(("in EventCallback.push_event(",dev_name,": ",attr_name,")"))
             if not event.err and event.attr_value is not None:
-                print("in EventCallback.push_event(...): ",attr_name,"=", event.attr_value.value)
+                print(("in EventCallback.push_event(...): ",attr_name,"=", event.attr_value.value))
                 self.TimeOutErrors=0
                 _EventsList[attr_name.lower()].set(event)
                 if attr_name.lower().endswith('/state'):
                     _StatesList[dev_name.lower()]=event.attr_value.value
                 _AttributesList[event.attr_name.lower()]=event.attr_value
             else:
-                print('in EventCallback.push_event(...): Received an Error Event!: ',event.errors)
+                print(('in EventCallback.push_event(...): Received an Error Event!: ',event.errors))
                 _EventsList[attr_name.lower()].set(event)
                 #if 'OutOfSync' in event.errors[0]['reason']: or 'API_EventTimeout' in event.errors[0]['reason']:
                 #if [e for e in event.errors if hasattr(e,'keys') and 'reason' in e.keys() and any(re.search(exp,e['reason']) for exp in self.NotifdExceptions)]:
                 reasons = [getattr(e,'reason',e.get('reason',str(e)) if hasattr(e,'get') else str(e)) for e in event.errors] #Needed to catch both PyTango3 and PyTango7 exceptions
                 if any(n in r for n in self.NotifdExceptions for r in reasons):
-                    print('callbacks=> DISCARDED EVENT FOR NOTIFD REASONS!!! %s(%s)' \
-                        %(dev_name,reasons))
+                    print(('callbacks=> DISCARDED EVENT FOR NOTIFD REASONS!!! %s(%s)' \
+                        %(dev_name,reasons)))
                     self.TimeOutErrors+=1
                     self.lock.release()
                     return
@@ -1428,10 +1429,10 @@ class EventCallback():
                 if rec in list(_EventReceivers.keys()): _EventReceivers[rec].push_event(event)
                 elif hasattr(rec,'push_event'): rec.push_event(_event)
                 elif isinstance(rec,threading.Event): rec.set()
-                elif callable(rec): rec()
+                elif isinstance(rec, collections.Callable): rec()
                 else: raise 'UnknownEventReceiverType'
         except Exception as e:
-            print('exception in EventCallback.push_event(): ',e, ";", getLastException())
+            print(('exception in EventCallback.push_event(): ',e, ";", getLastException()))
         self.lock.release()
 
 ###############################################################################
@@ -1480,7 +1481,7 @@ GlobalCallback = EventCallback()
 def inStatesList(devname):
     print('In callbacks.inStatesList ...')
     GlobalCallback.lock.acquire()
-    print('Checking if %s in %s.'%(devname,str(list(_StatesList.keys()))))
+    print(('Checking if %s in %s.'%(devname,str(list(_StatesList.keys())))))
     value=bool(devname.lower() in list(_StatesList.keys()))
     GlobalCallback.lock.release()
     return bool
@@ -1500,7 +1501,7 @@ def setStateFor(devname,state):
     return state
 
 def setAttributeValue(attr_name,attr_value):
-    print('In callbacks.setAttributeValue(%s)'%attr_name)
+    print(('In callbacks.setAttributeValue(%s)'%attr_name))
     GlobalCallback.lock.acquire()
     _AttributesList[attr_name.lower()]=attr_value
     GlobalCallback.lock.release()
@@ -1558,7 +1559,7 @@ def addTAttr(tattr):
         _AttributesList[att_name]=None
         if att_name.endswith=='/state':
             _StatesList[tattr.dev_name.lower()]=None
-    except: print(traceback.format_exc())    
+    except: print((traceback.format_exc()))    
     finally: GlobalCallback.lock.release()
     return
     
@@ -1567,7 +1568,7 @@ def addReceiver(attribute,receiver):
         GlobalCallback.lock.acquire()        
         if not receiver.lower() in _EventsList[attribute.lower()].receivers:
             _EventsList[attribute.lower()].receivers.append(receiver.lower())
-    except: print(traceback.format_exc())
+    except: print((traceback.format_exc()))
     finally: GlobalCallback.lock.release()
     return
 
@@ -1603,8 +1604,8 @@ def subscribeDeviceAttributes(self,dev_name,attrs):
             callbacks._EventsList[att_name].dp = dev
             callbacks._EventsList[att_name].event_id = event_id
             callbacks._EventsList[att_name].dev_name = dev_name
-            print("In ", self.get_name(), "::AddDevice()", ": Listing Device/Attributes in _EventsList:")
-            for a,t in list(callbacks._EventsList.items()): print("\tAttribute: ",a,"\tDevice: ",t.dev_name,"\n")
+            print(("In ", self.get_name(), "::AddDevice()", ": Listing Device/Attributes in _EventsList:"))
+            for a,t in list(callbacks._EventsList.items()): print(("\tAttribute: ",a,"\tDevice: ",t.dev_name,"\n"))
         else:
             self.warning("::AddDevice(%s): This attribute is already in the list, adding composer to receivers list." % att_name)
             if not dev_name in callbacks._EventsList[att_name].receivers:
