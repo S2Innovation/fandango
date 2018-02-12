@@ -51,7 +51,8 @@ from .functional import *
 from .dicts import *
 from .tango import PyTango,EventType,fakeAttributeValue,ProxiesDict
 from .tango import get_full_name,get_attribute_events, check_device_cached
-from .threads import ThreadedObject,Queue,timed_range,wait,threading
+from .threads import ThreadedObject,timed_range,wait,threading
+from multiprocessing import Queue
 from .log import Logger,printf,tracer
 import collections
 
