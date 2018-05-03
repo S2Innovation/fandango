@@ -93,7 +93,16 @@ Requirements
 
  * The functional, object submodules doesn't have any dependency
  * It requires PyTango to use tango, device, dynamic and callback submodules
- * Some submodules have its own dependencies (Qt,MySQL), so they are always imported within try,except clauses. 
+ * Some submodules have its own dependencies (Qt,MySQL), so they are always imported within try,except clauses.
+
+Dependencies
+------------
+- [PyTango](https://github.com/tango-controls/pytango)
+- [taurus](https://github.com/taurus-org/taurus)
+
+```console
+pip install -r requirements.txt
+```
 
 Downloading
 ===========

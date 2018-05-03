@@ -1,0 +1,4 @@
+numpy >= 1.1
+PyTango
+MySQL-python
+taurus
